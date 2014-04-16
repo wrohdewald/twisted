@@ -6,6 +6,7 @@
 
 Logging with twisted.python.logger
 ==================================
+.. _core-howto-logger-main
 
 
 The Basics

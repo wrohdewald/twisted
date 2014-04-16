@@ -14,7 +14,8 @@ There is now a new logging system in Twisted (:api:`twisted.python.logger <twist
 
 The old logging API, described here, remains for compatibility, and is now implemented as a client of the new logging system.
 
-New code should adopt the new API.  The new API, and notes on transitioning from the old API, is documented in the :ref:`logger HOWTO <core-howto-logger>`.
+New code should adopt the new API.
+The new API, and notes on transitioning from the old API, is documented in the :ref:`logger HOWTO <core-howto-logger-main>`.
 
 
 
