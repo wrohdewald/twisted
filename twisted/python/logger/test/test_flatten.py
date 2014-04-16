@@ -177,22 +177,42 @@ class FlatFormattingTests(unittest.TestCase):
         self.assertEquals(sameFlattener.flatKey(*key), "x!:/2")
 
 
-    def test_formatFlatEvent_fieldNamesSame(self):
+    def _test_formatFlatEvent_fieldNamesSame(self, event=None):
         """
-        The same format field used twice is rendered twice.
+        The same format field used twice in one event is rendered twice.
         """
-        counter = count()
+        if event is None:
+            counter = count()
 
-        class CountStr(object):
-            def __str__(self):
-                return str(next(counter))
+            class CountStr(object):
+                def __str__(self):
+                    return str(next(counter))
 
-        event = dict(
-            log_format="{x} {x}",
-            x=CountStr(),
-        )
+            event = dict(
+                log_format="{x} {x}",
+                x=CountStr(),
+            )
+
         flattenEvent(event)
         self.assertEquals(formatEvent(event), u"0 1")
+
+        return event
+
+
+    def test_formatFlatEvent_fieldNamesSame(self):
+        """
+        The same format field used twice in one event is rendered twice.
+        """
+        self._test_formatFlatEvent_fieldNamesSame()
+
+
+    def test_formatFlatEvent_fieldNamesSame_again(self):
+        """
+        The same event flattened twice gives the same (already rendered)
+        result.
+        """
+        event = self._test_formatFlatEvent_fieldNamesSame()
+        self._test_formatFlatEvent_fieldNamesSame(event)
 
 
     def test_extractField(self, flattenFirst=lambda x: x):
