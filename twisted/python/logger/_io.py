@@ -20,10 +20,6 @@ class LoggingFile(object):
     C{write()} are converted to C{unicode}, which is the opposite of what
     C{file} does.
 
-    @cvar defaultLogger: The default L{Logger} instance to use when none is
-        supplied to L{LoggingFile.__init__}.
-    @type defaultLogger: L{Logger}
-
     @ivar softspace: File-like L{'softspace' attribute <file.softspace>}; zero
         or one.
     @type softspace: L{int}
@@ -34,6 +30,8 @@ class LoggingFile(object):
 
     def __init__(self, logger, level=LogLevel.info, encoding=None):
         """
+        @param logger: the logger to log through.
+
         @param level: the log level to emit events with.
 
         @param encoding: The encoding to expect when receiving bytes via
@@ -44,11 +42,7 @@ class LoggingFile(object):
         @type log: L{Logger}
         """
         self.level = level
-
-        if logger is None:
-            self.log = self.defaultLogger
-        else:
-            self.log = logger
+        self.log = logger
 
         if encoding is None:
             self._encoding = sys.getdefaultencoding()
