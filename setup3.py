@@ -81,6 +81,7 @@ modules = [
     "twisted.python.logger._buffer",
     "twisted.python.logger._file",
     "twisted.python.logger._filter",
+    "twisted.python.logger._flatten",
     "twisted.python.logger._format",
     "twisted.python.logger._global",
     "twisted.python.logger._io",
