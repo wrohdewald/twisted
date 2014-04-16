@@ -126,7 +126,7 @@ def objectLoadHook(aDict):
     @param aDict: A dictionary loaded from a JSON object.
     @type aDict: L{dict}
 
-    @return: L{aDict} itself, or the object represented by L{aDict}
+    @return: C{aDict} itself, or the object represented by C{aDict}
     @rtype: L{object}
     """
     if "__class_uuid__" in aDict:
@@ -225,7 +225,7 @@ def eventsFromJSONLogFile(inFile):
     """
     Load events from a file previously saved with L{jsonFileLogObserver}.
 
-    @param inFile: A (readable) file-like object.  Data read from L{inFile}
+    @param inFile: A (readable) file-like object.  Data read from C{inFile}
         should be L{unicode} or UTF-8 L{bytes}.
     @type inFile: iterable of lines
 
