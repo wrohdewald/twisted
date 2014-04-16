@@ -43,8 +43,12 @@ class FlatFormattingTests(unittest.TestCase):
             attribute = "value"
 
         event1 = dict(
-            log_format="callable: {callme()} attribute: {object.attribute} "
-                       "numrepr: {number!r} strrepr: {string!r}",
+            log_format=(
+                "callable: {callme()} "
+                "attribute: {object.attribute} "
+                "numrepr: {number!r} "
+                "strrepr: {string!r}"
+            ),
             callme=lambda: next(counter), object=Ephemeral(),
             number=7, string="hello",
         )
@@ -57,7 +61,12 @@ class FlatFormattingTests(unittest.TestCase):
         event3 = json.loads(json.dumps(event2))
         self.assertEquals(
             formatEvent(event3),
-            u"callable: 0 attribute: value numrepr: 7 strrepr: 'hello'"
+            (
+                u"callable: 0 "
+                "attribute: value "
+                "numrepr: 7 "
+                "strrepr: 'hello'"
+            )
         )
 
 
