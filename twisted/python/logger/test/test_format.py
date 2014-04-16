@@ -5,9 +5,6 @@
 Test cases for L{twisted.python.logger._format}.
 """
 
-import sys
-from itertools import count
-import json
 from twisted.python.test.test_tzhelper import mktime, addTZCleanup, setTZ
 
 try:
@@ -25,10 +22,6 @@ from .._levels import LogLevel
 from .._format import (
     formatEvent, formatUnformattableEvent, formatTime,
     formatEventAsClassicLogText, formatWithCall,
-)
-
-from .._flatten import (
-    flattenEvent, extractField, KeyFlattener, aFormatter
 )
 
 
@@ -108,7 +101,7 @@ class FormattingTests(unittest.TestCase):
         """
         Formatting an event that's just plain out to get us.
         """
-        event = dict(log_format="{evil()}", evil=lambda: 1/0)
+        event = dict(log_format="{evil()}", evil=lambda: 1 / 0)
         result = formatEvent(event)
 
         self.assertIn("Unable to format event", result)
@@ -121,7 +114,7 @@ class FormattingTests(unittest.TestCase):
         """
         event = {
             "log_format": "{evil()}",
-            "evil": lambda: 1/0,
+            "evil": lambda: 1 / 0,
             Unformattable(): "gurk",
         }
         result = formatEvent(event)
@@ -136,7 +129,7 @@ class FormattingTests(unittest.TestCase):
         """
         event = dict(
             log_format="{evil()}",
-            evil=lambda: 1/0,
+            evil=lambda: 1 / 0,
             gurk=Unformattable(),
         )
         result = formatEvent(event)
@@ -151,205 +144,13 @@ class FormattingTests(unittest.TestCase):
         """
         event = dict(
             log_format="{evil()}",
-            evil=lambda: 1/0,
+            evil=lambda: 1 / 0,
             recoverable="okay",
         )
         # Call formatUnformattableEvent() directly with a bogus exception.
         result = formatUnformattableEvent(event, Unformattable())
         self.assertIn("MESSAGE LOST: unformattable object logged:", result)
         self.assertIn(repr("recoverable") + " = " + repr("okay"), result)
-
-
-
-class FlatFormattingTests(unittest.TestCase):
-    """
-    Tests for flattened event formatting functions.
-    """
-
-    def test_formatFlatEvent(self):
-        """
-        L{flattenEvent} will "flatten" an event so that, if scrubbed of all but
-        serializable objects, it will preserve all necessary data to be
-        formatted once serialized.  When presented with an event thusly
-        flattened, L{formatEvent} will produce the same output.
-        """
-        counter = count()
-
-        class Ephemeral(object):
-            attribute = "value"
-
-        event1 = dict(
-            log_format="callable: {callme()} attribute: {object.attribute} "
-                       "numrepr: {number!r} strrepr: {string!r}",
-            callme=lambda: next(counter), object=Ephemeral(),
-            number=7, string="hello",
-        )
-
-        flattenEvent(event1)
-
-        event2 = dict(event1)
-        del event2["callme"]
-        del event2["object"]
-        event3 = json.loads(json.dumps(event2))
-        self.assertEquals(formatEvent(event3),
-                          u"callable: 0 attribute: value numrepr: 7 "
-                          "strrepr: 'hello'")
-
-
-    def test_formatFlatEventWithMutatedFields(self):
-        """
-        L{formatEvent} will prefer the stored C{str()} or C{repr()} value for
-        an object, in case the other version.
-        """
-        class unpersistable(object):
-            destructed = False
-
-            def selfDestruct(self):
-                self.destructed = True
-
-            def __repr__(self):
-                if self.destructed:
-                    return "post-serialization garbage"
-                else:
-                    return "un-persistable"
-
-        up = unpersistable()
-        event1 = dict(
-            log_format="unpersistable: {unpersistable}", unpersistable=up
-        )
-
-        flattenEvent(event1)
-        up.selfDestruct()
-
-        self.assertEquals(formatEvent(event1), "unpersistable: un-persistable")
-
-
-    def test_keyFlattening(self):
-        """
-        Test that L{KeyFlattener.flatKey} returns the expected keys for format
-        fields.
-        """
-
-        def keyFromFormat(format):
-            for (
-                literalText,
-                fieldName,
-                formatSpec,
-                conversion,
-            ) in aFormatter.parse(format):
-                return KeyFlattener().flatKey(fieldName, formatSpec,
-                                              conversion)
-
-        # No name
-        try:
-            self.assertEquals(keyFromFormat("{}"), "!:")
-        except ValueError:
-            if sys.version_info[:2] == (2, 6):
-                # In python 2.6, an empty field name causes Formatter.parse to
-                # raise ValueError.
-                pass
-            else:
-                # In Python 2.7, it's allowed, so this exception is unexpected.
-                raise
-
-        # Just a name
-        self.assertEquals(keyFromFormat("{foo}"), "foo!:")
-
-        # Add conversion
-        self.assertEquals(keyFromFormat("{foo!s}"), "foo!s:")
-        self.assertEquals(keyFromFormat("{foo!r}"), "foo!r:")
-
-        # Add format spec
-        self.assertEquals(keyFromFormat("{foo:%s}"), "foo!:%s")
-        self.assertEquals(keyFromFormat("{foo:!}"), "foo!:!")
-        self.assertEquals(keyFromFormat("{foo::}"), "foo!::")
-
-        # Both
-        self.assertEquals(keyFromFormat("{foo!s:%s}"), "foo!s:%s")
-        self.assertEquals(keyFromFormat("{foo!s:!}"), "foo!s:!")
-        self.assertEquals(keyFromFormat("{foo!s::}"), "foo!s::")
-        [keyPlusLiteral] = aFormatter.parse("{x}")
-        key = keyPlusLiteral[1:]
-        sameFlattener = KeyFlattener()
-        self.assertEquals(sameFlattener.flatKey(*key), "x!:")
-        self.assertEquals(sameFlattener.flatKey(*key), "x!:/2")
-
-
-    def test_formatFlatEvent_fieldNamesSame(self):
-        """
-        The same format field used twice is rendered twice.
-        """
-        counter = count()
-
-        class CountStr(object):
-            def __str__(self):
-                return str(next(counter))
-
-        event = dict(
-            log_format="{x} {x}",
-            x=CountStr(),
-        )
-        flattenEvent(event)
-        self.assertEquals(formatEvent(event), u"0 1")
-
-
-    def test_extractField(self, flattenFirst=lambda x: x):
-        """
-        L{extractField} will extract a field used in the format string.
-        """
-        class ObjectWithRepr(object):
-            def __repr__(self):
-                return "repr"
-
-        class Something(object):
-            def __init__(self):
-                self.number = 7
-                self.object = ObjectWithRepr()
-
-            def __getstate__(self):
-                raise NotImplementedError("Just in case.")
-
-        event = dict(
-            log_format="{something.number} {something.object}",
-            something=Something(),
-        )
-
-        flattened = flattenFirst(event)
-        self.assertEquals(extractField("something.number", flattened), 7)
-        self.assertEquals(extractField("something.number!s", flattened), "7")
-        self.assertEquals(extractField("something.object!s", flattened),
-                          "repr")
-
-
-    def test_extractFieldFlattenFirst(self):
-        """
-        L{extractField} behaves identically if the event is explicitly
-        flattened first.
-        """
-        def flattened(evt):
-            flattenEvent(evt)
-            return evt
-        self.test_extractField(flattened)
-
-
-    def test_flattenEventWithoutFormat(self):
-        """
-        L{flattenEvent} will do nothing to an event with no format string.
-        """
-        inputEvent = {'a': 'b', 'c': 1}
-        flattenEvent(inputEvent)
-        self.assertEquals(inputEvent, {'a': 'b', 'c': 1})
-
-
-    def test_flattenEventWithInertFormat(self):
-        """
-        L{flattenEvent} will do nothing to an event with a format string that
-        contains no format fields.
-        """
-        inputEvent = {'a': 'b', 'c': 1, 'log_format': 'simple message'}
-        flattenEvent(inputEvent)
-        self.assertEquals(inputEvent, {'a': 'b', 'c': 1,
-                                       'log_format': 'simple message'})
 
 
 
@@ -376,7 +177,7 @@ class TimeFormattingTests(unittest.TestCase):
             setTZ(name)
 
             localDST = mktime((2006, 6, 30, 0, 0, 0, 4, 181, 1))
-            localSTD = mktime((2007, 1, 31, 0, 0, 0, 2,  31, 0))
+            localSTD = mktime((2007, 1, 31, 0, 0, 0, 2, 31, 0))
 
             self.assertEquals(formatTime(localDST), expectedDST)
             self.assertEquals(formatTime(localSTD), expectedSTD)
@@ -623,4 +424,4 @@ class Unformattable(object):
     """
 
     def __repr__(self):
-        return str(1/0)
+        return str(1 / 0)
