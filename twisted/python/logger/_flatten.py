@@ -75,7 +75,11 @@ def flattenEvent(event):
     """
     if "log_format" not in event:
         return
-    fields = {}
+
+    if "log_flattened" in event:
+        fields = event["log_flattened"]
+    else:
+        fields = {}
 
     keyFlattener = KeyFlattener()
 
