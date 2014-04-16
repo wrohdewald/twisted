@@ -55,9 +55,10 @@ class FlatFormattingTests(unittest.TestCase):
         del event2["callme"]
         del event2["object"]
         event3 = json.loads(json.dumps(event2))
-        self.assertEquals(formatEvent(event3),
-                          u"callable: 0 attribute: value numrepr: 7 "
-                          "strrepr: 'hello'")
+        self.assertEquals(
+            formatEvent(event3),
+            u"callable: 0 attribute: value numrepr: 7 strrepr: 'hello'"
+        )
 
 
     def test_formatFlatEventWithMutatedFields(self):
@@ -107,8 +108,9 @@ class FlatFormattingTests(unittest.TestCase):
                 formatSpec,
                 conversion,
             ) in aFormatter.parse(format):
-                return KeyFlattener().flatKey(fieldName, formatSpec,
-                                              conversion)
+                return KeyFlattener().flatKey(
+                    fieldName, formatSpec, conversion
+                )
 
         # No name
         try:
