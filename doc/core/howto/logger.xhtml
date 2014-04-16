@@ -188,7 +188,7 @@ class Foo(object):
     </p>
 
     <p>
-        Note that all three examples in the opening section of this HOWTO fit this signature.  The first omits the format, which doesn't lend itself well to text logging.  The second omits the keyword arguments, which hostile to anything other than text logging, and is therefore ill-advised.  Finally, the third provides both.
+        Note that all three examples in the opening section of this HOWTO fit this signature.  The first omits the format, which doesn't lend itself well to text logging.  The second omits the keyword arguments, which hostile to anything other than text logging, and is therefore ill-advised.  Finally, the third provides both, which is the recommended usage.
     </p>
 
     <h3>Format strings</h3>
@@ -225,6 +225,52 @@ log.info("{request.uri} useful, but expensive: {request.usefulButExpensive()}",
             There is no support for specifying arguments in the format string; the goal is to make it idiomatic to express that work be done later, not to implement a full Python expression evaluator.
         </li>
     </ol>
+
+    <h3>Event keys added by the system</h3>
+
+    <p>
+        The logging system will add keys to emitted events.
+        All event keys that are inserted by the logging system with have a <code class="python">log_</code> prefix, to avoid namespace collisions with application-provided event keys.
+        System-provided event keys include:
+    </p>
+
+    <dl>
+        <dt><code class="python">log_logger</code></dt>
+        <dd>
+            <code class="API" base="twisted.python.logger">Logger</code> object that the event was emitted to.
+        </dd>
+
+        <dt><code class="python">log_source</code></dt>
+        <dd>
+            The source object that emitted the event.
+            When a <code class="API" base="twisted.python.logger">Logger</code> is accessed as an attribute of a class, the class is the source.
+            When accessed as an attribute of an instance, the instance is the source.
+            In other cases, the source is <code class="python">None</code>.
+        </dd>
+
+        <dt><code class="python">log_level</code></dt>
+        <dd>
+            The <code class="API" base="twisted.python.logger">LogLevel</code> associated with the event.
+        </dd>
+
+        <dt><code class="python">log_namespace</code></dt>
+        <dd>
+            The namespace associated with the event.
+        </dd>
+
+        <dt><code class="python">log_format</code></dt>
+        <dd>
+            The format string provided for use by observers that wish to render the event as text.
+            This may be <code class="python">None</code>, if no format string was provided.
+        </dd>
+
+        <dt><code class="python">log_time</code></dt>
+        <dd>
+            The time that the event was emitted, as returned by <code class="API" base="time">time</code>.
+        </dd>
+
+    </dl>
+
 
     <h2><a name="saving-events-for-later"></a>Saving events for later</h2>
 
