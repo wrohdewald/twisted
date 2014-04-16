@@ -14,7 +14,7 @@
 
     <p>
         Logging consists of two main endpoints: applications that emit events, and observers that receive and handle those events.
-        An event is simply an object containing the relevant data that describes something interesting that has occurred in the application.
+        An event is simply a <code class="python">dict</code> object containing the relevant data that describes something interesting that has occurred in the application.
         For example: a web server might emit an event after handling each request that includes the URI of requested resource, the response's status code, a count of bytes transferred, and so on.
         All of that information might be contained in a pair of objects representing the request and response, so logging this event could be as simple as:
     </p>
@@ -109,7 +109,8 @@ class Foo(object):
     </pre>
 
     <p>
-        When associated with a class in this manner, the <code>"log_source"</code> key is set in the event, and available for the format string to retrieve values from.  For example:
+        When associated with a class in this manner, the <code>"log_source"</code> key is set in the event.
+        For example:
     </p>
 
     <a href="listings/logger/logsource.py" class="py-listing">logsource.py</a>
@@ -208,10 +209,10 @@ class Foo(object):
     <ol>
         <li>
             Positional (numerical) field names (eg. <code class="python">{0}</code>) are not permitted.
-            Because event keys are provided via keyword arguments, and the logging system adds additional keys, the order of event attributes is non-deterministic, which means positional field names do not make sense in this context.
+            Event keys are not ordered, which means positional field names do not make sense in this context.
             However, this is not an accidental limitation, but an intentional design decision.
             As software evolves, log messages often grow to include additional information, while still logging the same conceptual event.
-            By using meaningful names rather than opaque indexes for log values, these identifiers are more robust against future changes in the format of messages and the information provided.
+            By using meaningful names rather than opaque indexes for event keys, these identifiers are more robust against future changes in the format of messages and the information provided.
         </li>
         <li>
             Field names ending in parentheses (eg. <code class="python">{foo()}</code>) will call the referenced object with no arguments, then call <code class="python">str</code> on the result, rather than calling <code class="python">str</code> on the referenced object directly.
@@ -376,7 +377,7 @@ def simpleObserver(event):
     </p>
 
     <p>
-        If you're writing code to log messages directly for potential analysis, then you should simply structure your messages to include all necessary information as serialization-friendly values of log keys, and then simply pull them out, like the <code>loader-math.py</code> example above.
+        If you're writing code to log events directly for potential analysis, then you should simply structure your messages to include all necessary information as serialization-friendly values in events, and then simply pull them out, like the <code>loader-math.py</code> example above.
     </p>
 
     <p>
@@ -386,12 +387,12 @@ def simpleObserver(event):
     <a href="listings/logger/ad_hoc.py" class="py-listing">ad_hoc.py</a>
 
     <p>
-        In this example, the <code>AdHoc</code> object is not itself serializable, but it has two relevant fields, which the log message's format string calls out as attributes of the <code>log_source</code> field, as described above: <code>a</code> and <code>b</code>.
+        In this example, the <code>AdHoc</code> object is not itself serializable, but it has two relevant attributes, which the log message's format string calls out as attributes of the <code>log_source</code> field, as described above: <code>a</code> and <code>b</code>.
     </p>
 
     <p>
         To analyze this event, we can't pursue the same strategy shown above in <code>loader-math.py</code>.
-        We don't have any fields of the log event to examine directly; <code>a</code> and <code>b</code> are not present as keys themselves.
+        We don't have any key/value pairs of the log event to examine directly; <code>a</code> and <code>b</code> are not present as keys themselves.
         We could look for the <code>log_source</code> key within the event and access its <code>a</code> and <code>b</code> attributes, but that wouldn't work once the event had been serialized and loaded again, since an <code>AdHoc</code> instance isn't a basic type that can be saved to JSON.
     </p>
 
