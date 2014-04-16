@@ -64,7 +64,7 @@ def setTZ(name):
 
 def addTZCleanup(testCase):
     """
-    Add cleanup hooks to a test case to reset timezone to orginial value.
+    Add cleanup hooks to a test case to reset timezone to original value.
 
     @param testCase: the test case to add the cleanup to.
     @type testCase: L{unittest.TestCase}
