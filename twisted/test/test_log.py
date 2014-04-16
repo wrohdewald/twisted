@@ -15,6 +15,7 @@ import time
 import logging
 import warnings
 import calendar
+from io import IOBase
 
 from twisted.trial import unittest
 
@@ -226,8 +227,8 @@ class FakeFile(list):
     def flush(self):
         pass
 
-import io
-io.IOBase.register(FakeFile)
+
+IOBase.register(FakeFile)
 
 
 
