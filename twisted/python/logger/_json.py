@@ -178,10 +178,17 @@ def eventAsJSON(event):
         kw = dict(default=objectSaveHook, encoding="charmap", skipkeys=True)
     else:
         def default(unencodable):
+            """
+            Serialize an object not otherwise serializable by L{dumps}.
+            @param unencodable: An unencodable object.
+            @return: C{unencodable}, serialized
+            """
             if isinstance(unencodable, bytes):
                 return unencodable.decode("charmap")
             return objectSaveHook(unencodable)
+
         kw = dict(default=default, skipkeys=True)
+
     flattenEvent(event)
     result = dumps(event, **kw)
     if not isinstance(result, unicode):

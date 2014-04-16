@@ -66,10 +66,15 @@ class FlatFormattingTests(unittest.TestCase):
         an object, in case the other version.
         """
         class Unpersistable(object):
+            """
+            Unpersitable object.
+            """
             destructed = False
 
             def selfDestruct(self):
-                """Self destruct"""
+                """
+                Self destruct.
+                """
                 self.destructed = True
 
             def __repr__(self):

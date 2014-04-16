@@ -58,6 +58,8 @@ class SaveLoadTests(TestCase):
 
         @param event: An event.
         @type event: L{dict}
+
+        @return: JSON.
         """
         return savedJSONInvariants(self, eventAsJSON(event))
 
