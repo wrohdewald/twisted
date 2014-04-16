@@ -247,7 +247,7 @@ While observers are called synchronously, it is possible that an observer will d
 
 For compatibility reasons, ``twistd`` will log to a text-based format by default.
 However, it's much better to use a structured log file format which preserves information about the events being logged.
-``twisted.python.logger`` provides APIs: :api:`twisted.python.logger.jsonFileLogObserver <jsonFileLogObserver>` :api:`twisted.python.logger.eventsFromJSONLogFile <eventsFromJSONLogFile>` which allow you to save and retrieve structured log events with a basic level of fidelity.
+``twisted.python.logger`` provides two APIs: :api:`twisted.python.logger.jsonFileLogObserver <jsonFileLogObserver>` and :api:`twisted.python.logger.eventsFromJSONLogFile <eventsFromJSONLogFile>`, which allow you to save and retrieve structured log events with a basic level of fidelity.
 Log events are serialized as JSON dictionaries, with serialization rules that are as lenient as possible; any unknown values are replaced with simple placeholder values.
 
 ``jsonFileLogObserver`` will create a log observer that will save events as structured data, like so:
@@ -525,7 +525,7 @@ For example, this code:
     except Exception as e:
         log.err(e, "Math is hard")
 
-… could be modified thusly to stop depending on the older module by simply changing the import line and instantiating a :api:`twisted.python.logger.LegacyLogger <LegacyLogger>` .
+…could be modified thusly to stop depending on the older module by simply changing the import line and instantiating a :api:`twisted.python.logger.LegacyLogger <LegacyLogger>` .
 The rest of the code stays the same:
 
 .. code-block:: python
