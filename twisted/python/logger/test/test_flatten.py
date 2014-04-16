@@ -72,6 +72,25 @@ class FlatFormattingTests(unittest.TestCase):
         )
 
 
+    def test_formatFlatEvent_badFormat(self):
+        """
+        If the format string is invalid, an error is produced.
+        """
+        event1 = dict(
+            log_format=(
+                "strrepr: {string!X}"
+            ),
+            string="hello",
+        )
+
+        flattenEvent(event1)
+        event2 = json.loads(json.dumps(event1))
+
+        self.assertTrue(
+            formatEvent(event2).startswith(u"Unable to format event")
+        )
+
+
     def test_formatFlatEventWithMutatedFields(self):
         """
         L{formatEvent} will prefer the stored C{str()} or C{repr()} value for
