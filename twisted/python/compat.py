@@ -501,7 +501,6 @@ except ImportError:
 try:
     from types import FileType
 except ImportError:
-    from io import IOBase
     # Python 3+
     FileType = IOBase
 
