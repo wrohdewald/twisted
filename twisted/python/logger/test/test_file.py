@@ -9,7 +9,7 @@ from io import StringIO
 
 from zope.interface.verify import verifyObject, BrokenMethodImplementation
 
-from twisted.trial import unittest
+from twisted.trial.unittest import TestCase
 
 from twisted.python.compat import unicode
 from .._observer import ILogObserver
@@ -18,7 +18,7 @@ from .._file import textFileLogObserver
 
 
 
-class FileLogObserverTests(unittest.TestCase):
+class FileLogObserverTests(TestCase):
     """
     Tests for L{FileLogObserver}.
     """
@@ -78,16 +78,16 @@ class FileLogObserverTests(unittest.TestCase):
 
     def test_observeWritesNone(self):
         """
-        L{FileLogObserver} writes to the given file when it observes events and
-        C{formatEvent} returns C{None}.
+        L{FileLogObserver} does not write to the given file when it observes
+        events and C{formatEvent} returns C{None}.
         """
         self._test_observeWrites(None, 0)
 
 
     def test_observeWritesEmpty(self):
         """
-        L{FileLogObserver} writes to the given file when it observes events and
-        C{formatEvent} returns C{u""}.
+        L{FileLogObserver} does not write to the given file when it observes
+        events and C{formatEvent} returns C{u""}.
         """
         self._test_observeWrites(u"", 0)
 
@@ -109,7 +109,7 @@ class FileLogObserverTests(unittest.TestCase):
 
 
 
-class TextFileLogObserverTests(unittest.TestCase):
+class TextFileLogObserverTests(TestCase):
     """
     Tests for L{textFileLogObserver}.
     """
