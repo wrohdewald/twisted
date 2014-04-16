@@ -104,13 +104,10 @@ def flattenEvent(event):
         field = aFormatter.get_field(fieldName, (), event)
         fieldValue = field[0]
 
-        if conversion == "s":
-            conversionFunction = str
-        elif conversion == "r":
+        if conversion == "r":
             conversionFunction = repr
-        else:
-            conversion = "s"
-            conversionFunction = lambda x: x
+        else:  # Above: if conversion is not "r", it's "s"
+            conversionFunction = str
 
         if callit:
             fieldValue = fieldValue()
