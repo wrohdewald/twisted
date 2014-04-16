@@ -47,6 +47,7 @@ class FlatFormattingTests(unittest.TestCase):
                 "callable: {callme()} "
                 "attribute: {object.attribute} "
                 "numrepr: {number!r} "
+                "numstr: {number!s} "
                 "strrepr: {string!r}"
             ),
             callme=lambda: next(counter), object=Ephemeral(),
@@ -65,6 +66,7 @@ class FlatFormattingTests(unittest.TestCase):
                 u"callable: 0 "
                 "attribute: value "
                 "numrepr: 7 "
+                "numstr: 7 "
                 "strrepr: 'hello'"
             )
         )
