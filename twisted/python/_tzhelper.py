@@ -6,8 +6,8 @@
 from datetime import datetime, timedelta, tzinfo
 
 __all__ = [
-    'FixedOffsetTimeZone',
-    'UTC',
+    "FixedOffsetTimeZone",
+    "UTC",
 ]
 
 
@@ -58,12 +58,12 @@ class FixedOffsetTimeZone(tzinfo):
             offset.
         @rtype: L{FixedOffsetTimeZone}
         """
-        name = '%s%02i:%02i' % (sign, hours, minutes)
-        if sign == '-':
+        name = "%s%02i:%02i" % (sign, hours, minutes)
+        if sign == "-":
             hours = -hours
             minutes = -minutes
-        elif sign != '+':
-            raise ValueError('invalid sign for timezone %r' % (sign,))
+        elif sign != "+":
+            raise ValueError("Invalid sign for timezone %r" % (sign,))
         return cls(timedelta(hours=hours, minutes=minutes), name)
 
 
@@ -113,4 +113,4 @@ class FixedOffsetTimeZone(tzinfo):
 
 
 
-UTC = FixedOffsetTimeZone.fromSignHoursMinutes('+', 0, 0)
+UTC = FixedOffsetTimeZone.fromSignHoursMinutes("+", 0, 0)

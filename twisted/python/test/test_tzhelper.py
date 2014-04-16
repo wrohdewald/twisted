@@ -5,8 +5,6 @@ from os import environ
 
 try:
     from time import tzset
-    # We should upgrade to a version of pyflakes that does not require this.
-    tzset
 except ImportError:
     tzset = None
 
@@ -16,10 +14,12 @@ from datetime import timedelta
 
 from time import mktime as mktime_real
 
+
 # On some rare platforms (FreeBSD 8?  I was not able to reproduce
 # on FreeBSD 9) 'mktime' seems to always fail once tzset() has been
 # called more than once in a process lifetime.  I think this is
 # just a platform bug, so let's work around it.  -glyph
+
 def mktime(t9):
     """
     Call L{mktime_real}, and if it raises L{OverflowError}, catch it and raise
@@ -96,7 +96,7 @@ class FixedOffsetTimeZoneTests(TestCase):
             setTZ(name)
 
             localDST = mktime((2006, 6, 30, 0, 0, 0, 4, 181, 1))
-            localSTD = mktime((2007, 1, 31, 0, 0, 0, 2,  31, 0))
+            localSTD = mktime((2007, 1, 31, 0, 0, 0, 2, 31, 0))
 
             tzDST = FixedOffsetTimeZone.fromLocalTimeStamp(localDST)
             tzSTD = FixedOffsetTimeZone.fromLocalTimeStamp(localSTD)
