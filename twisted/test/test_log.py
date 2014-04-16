@@ -9,10 +9,14 @@ from __future__ import division, absolute_import, print_function
 
 from twisted.python.compat import _PY3, NativeStringIO as StringIO
 
-import os, sys, time, logging, warnings, calendar
+import os
+import sys
+import time
+import logging
+import warnings
+import calendar
 
 from twisted.trial import unittest
-from twisted.trial.unittest import SkipTest
 
 from twisted.python import log, failure
 from twisted.python.logger.test.test_stdlib import handlerAndBytesIO
@@ -228,9 +232,8 @@ io.IOBase.register(FakeFile)
 
 
 class EvilStr:
-
     def __str__(self):
-        1//0
+        1 // 0
 
 
 
@@ -240,7 +243,7 @@ class EvilRepr:
 
 
     def __repr__(self):
-        1//0
+        1 // 0
 
 
 
@@ -579,9 +582,11 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
         """
         self._startLoggingCleanup()
         newPublisher = NewLogPublisher()
+
         class SysModule(object):
             stdout = object()
             stderr = object()
+
         tempLogPublisher = LogPublisher(
             newPublisher, newPublisher,
             logBeginner=LogBeginner(newPublisher, StringIO(), SysModule,
@@ -606,9 +611,11 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
         # save them any more.
         evt = {"pre-start": "event"}
         received = []
+
         def preStartObserver(x):
             if 'pre-start' in x.keys():
                 received.append(x)
+
         newPublisher(evt)
         newPublisher.addObserver(preStartObserver)
         log.startLogging(fakeFile, setStdout=False)
