@@ -104,6 +104,7 @@ class LogBeginnerTests(unittest.TestCase):
                 self.warnings.append(
                     (message, category, filename, lineno, file, line)
                 )
+
         self.sysModule = NotSys()
         self.warningsModule = NotWarnings()
         self.beginner = LogBeginner(
@@ -166,14 +167,22 @@ class LogBeginnerTests(unittest.TestCase):
         secondFilename, secondLine = nextLine()
         self.beginner.beginLoggingTo([events2.append])
         self.publisher(dict(event="postwarn"))
-        warning = dict(log_format=MORE_THAN_ONCE_WARNING,
-                       log_level=LogLevel.warn,
-                       fileNow=secondFilename, lineNow=secondLine,
-                       fileThen=firstFilename, lineThen=firstLine)
+        warning = dict(
+            log_format=MORE_THAN_ONCE_WARNING,
+            log_level=LogLevel.warn,
+            fileNow=secondFilename, lineNow=secondLine,
+            fileThen=firstFilename, lineThen=firstLine
+        )
 
-        compareEvents(self, events1,
-                      [dict(event="prebuffer"), dict(event="postbuffer"),
-                       warning, dict(event="postwarn")])
+        compareEvents(
+            self, events1,
+            [
+                dict(event="prebuffer"),
+                dict(event="postbuffer"),
+                warning,
+                dict(event="postwarn")
+            ]
+        )
         compareEvents(self, events2, [warning, dict(event="postwarn")])
 
 
@@ -207,12 +216,14 @@ class LogBeginnerTests(unittest.TestCase):
         x = []
         self.beginner.beginLoggingTo([x.append])
         print("Hello, world.", file=self.sysModule.stdout)
-        compareEvents(self, x, [dict(log_namespace="stdout",
-                                     message="Hello, world.")])
+        compareEvents(
+            self, x, [dict(log_namespace="stdout", message="Hello, world.")]
+        )
         del x[:]
         print("Error, world.", file=self.sysModule.stderr)
-        compareEvents(self, x, [dict(log_namespace="stderr",
-                                     message="Error, world.")])
+        compareEvents(
+            self, x, [dict(log_namespace="stderr", message="Error, world.")]
+        )
 
 
     def test_beginLoggingTo_dontRedirect(self):
@@ -247,8 +258,9 @@ class LogBeginnerTests(unittest.TestCase):
 
         self.sysModule.stdout.write(b"\x97\x9B\n")
         self.sysModule.stderr.write(b"\xBC\xFC\n")
-        compareEvents(self, x, [dict(message=u'\u674e'),
-                                dict(message=u'\u7469')])
+        compareEvents(
+            self, x, [dict(message=u'\u674e'), dict(message=u'\u7469')]
+        )
 
 
     def test_warningsModule(self):
@@ -256,15 +268,18 @@ class LogBeginnerTests(unittest.TestCase):
         L{LogBeginner.beginLoggingTo} will redirect the warnings of its
         warnings module into the logging system.
         """
-        self.warningsModule.showwarning("a message", DeprecationWarning,
-                                        __file__, 1)
+        self.warningsModule.showwarning(
+            "a message", DeprecationWarning, __file__, 1
+        )
         x = []
         self.beginner.beginLoggingTo([x.append])
-        self.warningsModule.showwarning("another message", DeprecationWarning,
-                                        __file__, 2)
-        self.assertEquals(self.warningsModule.warnings,
-                          [("a message", DeprecationWarning, __file__, 1,
-                            None, None)])
+        self.warningsModule.showwarning(
+            "another message", DeprecationWarning, __file__, 2
+        )
+        self.assertEquals(
+            self.warningsModule.warnings,
+            [("a message", DeprecationWarning, __file__, 1, None, None)]
+        )
         compareEvents(
             self, x,
             [dict(warning="another message",
