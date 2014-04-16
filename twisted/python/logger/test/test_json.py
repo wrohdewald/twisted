@@ -260,8 +260,8 @@ class FileLogObserverTests(TestCase):
             fileHandle = StringIO(u'{"x": 1}\n')
             events = eventsFromJSONLogFile(fileHandle)
 
-            next = events.next()
-            self.assertEquals(next, {u"x": 1})
+            nextEvent = next(events)
+            self.assertEquals(nextEvent, {u"x": 1})
 
         finally:
             fileHandle.close()
