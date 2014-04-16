@@ -15,6 +15,8 @@ from twisted.python.compat import unicode
 
 aFormatter = Formatter()
 
+
+
 class KeyFlattener(object):
     """
     A L{KeyFlattener} computes keys for the things within curly braces in
@@ -78,13 +80,17 @@ def flattenEvent(event):
     keyFlattener = KeyFlattener()
 
     for (literalText, fieldName, formatSpec, conversion) in (
-            aFormatter.parse(event["log_format"])):
+        aFormatter.parse(event["log_format"])
+    ):
         if fieldName is None:
             continue
+
         if conversion != "r":
             conversion = "s"
+
         flattenedKey = keyFlattener.flatKey(fieldName, formatSpec, conversion)
         structuredKey = keyFlattener.flatKey(fieldName, formatSpec, "")
+
         if flattenedKey in fields:
             # We've already seen and handled this key
             continue
@@ -97,6 +103,7 @@ def flattenEvent(event):
 
         field = aFormatter.get_field(fieldName, (), event)
         fieldValue = field[0]
+
         if conversion == "s":
             conversionFunction = str
         elif conversion == "r":
@@ -104,8 +111,10 @@ def flattenEvent(event):
         else:
             conversion = "s"
             conversionFunction = lambda x: x
+
         if callit:
             fieldValue = fieldValue()
+
         flattenedValue = conversionFunction(fieldValue)
         fields[flattenedKey] = flattenedValue
         fields[structuredKey] = fieldValue
@@ -163,6 +172,3 @@ def flatFormat(event):
         key = keyFlattener.flatKey(fieldName, formatSpec, conversion or "s")
         s.extend([literalText, unicode(fieldValues[key])])
     return u"".join(s)
-
-
-
