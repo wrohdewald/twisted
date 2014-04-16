@@ -71,7 +71,8 @@ log.info(
     </pre>
 
     <p>
-        Note that this looks very much like the events-as-strings version of the API, except that the string is not rendered by the caller; we leave that to the observer, <em>if and when it is needed</em>.  The observer also has direct access to the request and response objects, as well as their attributes.
+        Note that this looks very much like the events-as-strings version of the API, except that the string is not rendered by the caller; we leave that to the observer, <em>if and when it is needed</em>.
+        The observer also has direct access to the request and response objects, as well as their attributes.
         Now a text-based observer can format the text in a prescribed way, and an observer that wants to handle these events in some other manner can do so as well.
     </p>
 
@@ -159,13 +160,15 @@ class Foo(object):
 
         <dt><code class="API" base="twisted.python.logger.LogLevel">error</code></dt>
         <dd>
-            Error conditions: Events indicating a systemic failure.  For example, resource exhaustion, or the loss of connectivity to an external system, such as a database or API endpoint, without which no useful work can proceed.
+            Error conditions: Events indicating a systemic failure.
+            For example, resource exhaustion, or the loss of connectivity to an external system, such as a database or API endpoint, without which no useful work can proceed.
             Similar to warnings, errors related to operational parameters may be actionable to system administrators and should provide references to resources which an administrator might use to resolve them.
         </dd>
 
         <dt><code class="API" base="twisted.python.logger.LogLevel">critical</code></dt>
         <dd>
-          Critical failures: Errors indicating systemic failure (ie. service outage), data corruption, imminent data loss, etc. which must be handled immediately.  This includes errors unanticipated by the software, such as unhandled exceptions, wherein the cause and consequences are unknown.
+          Critical failures: Errors indicating systemic failure (ie. service outage), data corruption, imminent data loss, etc. which must be handled immediately.
+          This includes errors unanticipated by the software, such as unhandled exceptions, wherein the cause and consequences are unknown.
         </dd>
     </dl>
 
@@ -189,7 +192,10 @@ class Foo(object):
     </p>
 
     <p>
-        Note that all three examples in the opening section of this HOWTO fit this signature.  The first omits the format, which doesn't lend itself well to text logging.  The second omits the keyword arguments, which hostile to anything other than text logging, and is therefore ill-advised.  Finally, the third provides both, which is the recommended usage.
+        Note that all three examples in the opening section of this HOWTO fit this signature.
+        The first omits the format, which doesn't lend itself well to text logging.
+        The second omits the keyword arguments, which hostile to anything other than text logging, and is therefore ill-advised.
+        Finally, the third provides both, which is the recommended usage.
     </p>
 
     <h3>Format strings</h3>
@@ -312,7 +318,8 @@ log.info("{request.uri} useful, but expensive: {request.usefulButExpensive()}",
     <h2>Implementing an observer</h2>
 
     <p>
-        An observer must provide the <code class="API" base="twisted.python.logger">ILogObserver</code> interface.  That interface simply describes a 1-argument callable that takes a <code>dict</code>, so a simple implementation may simply use the handy <code class="API" base="zope.interface">provider</code> decorator on a function that takes one argument:
+        An observer must provide the <code class="API" base="twisted.python.logger">ILogObserver</code> interface.
+        That interface simply describes a 1-argument callable that takes a <code>dict</code>, so a simple implementation may simply use the handy <code class="API" base="zope.interface">provider</code> decorator on a function that takes one argument:
     </p>
 
     <pre class="python">
@@ -463,18 +470,27 @@ log.info("Hello")
     </pre>
 
     <p>
-        This will cause all of a logger's events to be sent to the given observer.  In the above example, all events emitted by the logger (eg. <code class="python">"Hello"</code>) will be printed.
+        This will cause all of a logger's events to be sent to the given observer.
+        In the above example, all events emitted by the logger (eg. <code class="python">"Hello"</code>) will be printed.
         While that is useful in some cases, it is common to register multiple observers, and to do so globally for all (or most) loggers in an application.
     </p>
 
     <h2>The global log publisher</h2>
 
     <p>
-        When a <code class="API" base="twisted.python.logger">Logger</code> is created without giving it an observer, it will send its events to the global log publisher, which is a singleton accessible via the name <code class="API" base="twisted.python.logger">globalLogPublisher</code>.
+        The global log publisher is a log observer whose purpose is to capture log events not directed to a specific observer.
+        In a typical application, the majority of log events will be emitted to the global log publisher.
+        Observers can register themselves with the global log publisher in order to be forwarded these events.
     </p>
 
     <p>
-        The global log publisher is an instance of a private subclass of <code class="API" base="twisted.python.logger">LogPublisher</code>, which is itself an <code class="API" base="twisted.python.logger">ILogObserver</code>.  What this means is that the global log publisher accepts events like any other observer, and that it forwards those events to other observers.  Observers can be registered to be forwarded events by calling the <code class="API" base="twisted.python.logger">LogPublisher</code> method <code class="API" base="twisted.python.logger.LogPublisher">addObserver</code>, and unregister by calling <code class="API" base="twisted.python.logger.LogPublisher">removeObserver</code>:
+        When a <code class="API" base="twisted.python.logger">Logger</code> is created without specifying an observer to send events to, the logger will send its events to the global log publisher, which is accessible via the name <code class="API" base="twisted.python.logger">globalLogPublisher</code>.
+    </p>
+
+    <p>
+        The global log publisher is a singleton instance of a private subclass of <code class="API" base="twisted.python.logger">LogPublisher</code>, which is itself an <code class="API" base="twisted.python.logger">ILogObserver</code>.
+        What this means is that the global log publisher accepts events like any other observer, and that it forwards those events to other observers.
+        Observers can be registered to be forwarded events by calling the <code class="API" base="twisted.python.logger">LogPublisher</code> method <code class="API" base="twisted.python.logger.LogPublisher">addObserver</code>, and unregister by calling <code class="API" base="twisted.python.logger.LogPublisher">removeObserver</code>:
     </p>
 
     <pre class="python">
@@ -489,11 +505,15 @@ log.info("Hello")
     </pre>
 
     <p>
-        The result here is the same as the previous example, except that addtional observers can be (and may already have been) registered.  We know that <code class="python">"Hello"</code> will be printed.  We don't know, but it's very possible, that the same event will also be handled by other observers.
+        The result here is the same as the previous example, except that addtional observers can be (and may already have been) registered.
+        We know that <code class="python">"Hello"</code> will be printed.
+        We don't know, but it's very possible, that the same event will also be handled by other observers.
     </p>
 
     <p>
-        There is no supported API to discover what other observers are registered with a <code class="API" base="twisted.python.logger">LogPublisher</code>; in general, one doesn't need to know.  If an application is running in <code>twistd</code>, for example, it's likely that an observer is streaming events to a file by the time the application code is in play.  If it is running in a <code>twistd</code> web container, there will probably be another observer writing to the access log.
+        There is no supported API to discover what other observers are registered with a <code class="API" base="twisted.python.logger">LogPublisher</code>; in general, one doesn't need to know.
+        If an application is running in <code>twistd</code>, for example, it's likely that an observer is streaming events to a file by the time the application code is in play.
+        If it is running in a <code>twistd</code> web container, there will probably be another observer writing to the access log.
     </p>
 
     <p>
@@ -588,7 +608,8 @@ log.info("Hello, again")
     <h3>Incrementally porting emitters</h3>
 
     <p>
-        Applications that wish to switch from the old module to the new module without having to change much code may do so my using the <code class="API" base="twisted.python.logger">LegacyLogger</code> class, which exposes an API that is largely compatible with many uses of the <code class="API" base="">twisted.python.log</code> module.  For example, this code:
+        Applications that wish to switch from the old module to the new module without having to change much code may do so my using the <code class="API" base="twisted.python.logger">LegacyLogger</code> class, which exposes an API that is largely compatible with many uses of the <code class="API" base="">twisted.python.log</code> module.
+        For example, this code:
     </p>
 
     <pre class="python">
@@ -636,7 +657,8 @@ except Exception as e:
     <h3>Incrementally porting observers</h3>
 
     <p>
-        Observers also have an incremental path for porting to the new module.  <code class="API" base="twisted.python.logger">LegacyLogObserverWrapper</code> is an <code class="API" base="twisted.python.logger">ILogObserver</code> that wraps a log observer written for the older module.
+        Observers also have an incremental path for porting to the new module.
+        <code class="API" base="twisted.python.logger">LegacyLogObserverWrapper</code> is an <code class="API" base="twisted.python.logger">ILogObserver</code> that wraps a log observer written for the older module.
         This allows an old-style observer to be registered with a new-style logger or log publisher compatibly.
     </p>
 
