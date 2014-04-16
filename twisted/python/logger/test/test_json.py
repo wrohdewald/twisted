@@ -5,18 +5,24 @@
 Tests for L{twisted.python.logger._json}.
 """
 
+from io import StringIO
+
+from zope.interface.verify import verifyObject, BrokenMethodImplementation
+
 from twisted.python.compat import unicode
 
 from twisted.trial.unittest import TestCase
 
 from twisted.python.failure import Failure
 
+from .._observer import ILogObserver
 from .._format import formatEvent
 from .._levels import LogLevel
 from .._flatten import extractField
-from .._json import eventAsJSON, eventFromJSON
+from .._json import (
+    eventAsJSON, eventFromJSON, jsonFileLogObserver, eventsFromJSONLogFile
+)
 from .._logger import Logger
-
 
 
 def savedJSONInvariants(testCase, savedJSON):
@@ -165,7 +171,7 @@ class SaveLoadTests(TestCase):
         events = []
         log = Logger(observer=events.append)
         try:
-            1/0
+            1 / 0
         except ZeroDivisionError:
             f = Failure()
             log.failure("a message about failure", f)
@@ -200,3 +206,55 @@ class SaveLoadTests(TestCase):
             '"__class_uuid__": "02E59486-F24D-46AD-8224-3ACDF2A5732A"}}'
         )
         self.assertEquals(loadedEvent, dict(log_level=None))
+
+
+
+class FileLogObserverTests(TestCase):
+    """
+    Tests for L{FileLogObserver}.
+    """
+
+    def test_interface(self):
+        """
+        L{FileLogObserver} is an L{ILogObserver}.
+        """
+        try:
+            fileHandle = StringIO()
+            observer = jsonFileLogObserver(fileHandle)
+            try:
+                verifyObject(ILogObserver, observer)
+            except BrokenMethodImplementation as e:
+                self.fail(e)
+
+        finally:
+            fileHandle.close()
+
+
+    def test_observeWrites(self):
+        """
+        L{FileLogObserver} writes to the given file when it observes events.
+        """
+        try:
+            fileHandle = StringIO()
+            observer = jsonFileLogObserver(fileHandle)
+            event = dict(x=1)
+            observer(event)
+            self.assertEquals(fileHandle.getvalue(), u'{"x": 1}\n')
+
+        finally:
+            fileHandle.close()
+
+
+    def test_eventsFromJSONLogFile(self):
+        """
+        L{eventsFromJSONLogFile} reads events from a file.
+        """
+        try:
+            fileHandle = StringIO(u'{"x": 1}\n')
+            events = eventsFromJSONLogFile(fileHandle)
+
+            next = events.next()
+            self.assertEquals(next, {u"x": 1})
+
+        finally:
+            fileHandle.close()

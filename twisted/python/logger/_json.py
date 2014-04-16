@@ -207,7 +207,6 @@ def jsonFileLogObserver(outFile):
     @return: A file log observer.
     @rtype: L{FileLogObserver}
     """
-    # FIXME: test coverage
     return FileLogObserver(outFile, lambda event: eventAsJSON(event) + u"\n")
 
 
