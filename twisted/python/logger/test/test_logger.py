@@ -32,7 +32,7 @@ class TestLogger(Logger):
             globalLogPublisher.removeObserver(observer)
 
         self.emitted = {
-            "level":  level,
+            "level": level,
             "format": format,
             "kwargs": kwargs,
         }
@@ -98,8 +98,10 @@ class LoggerTests(unittest.TestCase):
         When used as a descriptor, the observer is propagated.
         """
         observed = []
+
         class MyObject(object):
             log = Logger(observer=observed.append)
+
         MyObject.log.info("hello")
         self.assertEquals(len(observed), 1)
         self.assertEquals(observed[0]['log_format'], "hello")
@@ -126,9 +128,6 @@ class LoggerTests(unittest.TestCase):
         Test that log levels and messages are emitted correctly for
         Logger.
         """
-        # FIXME: Need a basic test like this for logger attached to a class.
-        # At least: source should not be None in that case.
-
         log = TestLogger()
 
         for level in LogLevel.iterconstants():
@@ -152,6 +151,44 @@ class LoggerTests(unittest.TestCase):
             self.assertEquals(log.event["junk"], message)
 
             self.assertEquals(formatEvent(log.event), message)
+
+
+    def test_source_onClass(self):
+        """
+        C{log_source} event key should refer to the class.
+        """
+        def observer(event):
+            self.assertEquals(event["log_source"], Thingo)
+
+        class Thingo(object):
+            log = TestLogger(observer=observer)
+
+        Thingo.log.info()
+
+
+    def test_source_onInstance(self):
+        """
+        C{log_source} event key should refer to the instance.
+        """
+        def observer(event):
+            self.assertEquals(event["log_source"], thingo)
+
+        class Thingo(object):
+            log = TestLogger(observer=observer)
+
+        thingo = Thingo()
+        thingo.log.info()
+
+
+    def test_source_unbound(self):
+        """
+        C{log_source} event key should be C{None}.
+        """
+        def observer(event):
+            self.assertEquals(event["log_source"], None)
+
+        log = TestLogger(observer=observer)
+        log.info()
 
 
     def test_defaultFailure(self):
