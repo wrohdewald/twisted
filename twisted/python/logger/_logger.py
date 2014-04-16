@@ -106,8 +106,10 @@ class Logger(object):
             formatting.  The logging event (which is a L{dict}) is
             used to render this format string.
 
-        @param kwargs: additional keyword parameters to include with
-            the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         if level not in LogLevel.iterconstants():
             self.failure(
@@ -165,7 +167,10 @@ class Logger(object):
 
         @param level: a L{LogLevel} to use.
 
-        @param kwargs: additional keyword parameters to include with the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         if failure is None:
             failure = Failure()
@@ -181,7 +186,10 @@ class Logger(object):
             The logging event (which is a L{dict}) is used to render this
             format string.
 
-        @param kwargs: additional keyword parameters to include with the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         self.emit(LogLevel.debug, format, **kwargs)
 
@@ -194,7 +202,10 @@ class Logger(object):
             The logging event (which is a L{dict}) is used to render this
             format string.
 
-        @param kwargs: additional keyword parameters to include with the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         self.emit(LogLevel.info, format, **kwargs)
 
@@ -207,7 +218,10 @@ class Logger(object):
             The logging event (which is a L{dict}) is used to render this
             format string.
 
-        @param kwargs: additional keyword parameters to include with the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         self.emit(LogLevel.warn, format, **kwargs)
 
@@ -220,7 +234,10 @@ class Logger(object):
             The logging event (which is a L{dict}) is used to render this
             format string.
 
-        @param kwargs: additional keyword parameters to include with the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         self.emit(LogLevel.error, format, **kwargs)
 
@@ -233,6 +250,9 @@ class Logger(object):
             The logging event (which is a L{dict}) is used to render this
             format string.
 
-        @param kwargs: additional keyword parameters to include with the event.
+        @param kwargs: additional key/value pairs to include in the event.
+            Note that values which are later mutated may result in
+            non-deterministic behavior from observers that schedule work for
+            later execution.
         """
         self.emit(LogLevel.critical, format, **kwargs)

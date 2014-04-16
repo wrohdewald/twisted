@@ -272,6 +272,13 @@ log.info("{request.uri} useful, but expensive: {request.usefulButExpensive()}",
 
     </dl>
 
+    <h3>Avoid mutable event keys</h3>
+
+    <p>
+        Emitting applications should be cautious about inserting objects into event which will be mutated later.
+        While observers are called synchronously, it is possible that an observer will do something like queue up the event for later serialization, in which case the serialized object may be different than intended.
+    </p>
+
 
     <h2><a name="saving-events-for-later"></a>Saving events for later</h2>
 
@@ -492,7 +499,8 @@ log.info("Hello")
     <p>
         A caveat here is that events are <code class="python">dict</code> objects, which are mutable, so it is possible for an observer to modify an event that it sees.
         Because doing so will modify what other observers will see, modifying a received event can be problematic and should be strongly discouraged.
-        It can be particularly dangerous to edit or remove the content of an existing event key.
+        It can be particularly harmful to edit or remove the content of an existing event key.
+        Furthermore, no guarantees are made as to the order in which observers are called, so the effect of such modifications on other observers may be non-deterministic.
     </p>
 
     <h3>Starting the global log publisher</h3>
