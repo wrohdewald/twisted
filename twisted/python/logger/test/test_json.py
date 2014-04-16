@@ -52,6 +52,13 @@ class SaveLoadTests(TestCase):
     """
 
     def savedEventJSON(self, event):
+        """
+        Serialize some an events, assert some things about it, and return the
+        JSON.
+
+        @param event: An event.
+        @type event: L{dict}
+        """
         return savedJSONInvariants(self, eventAsJSON(event))
 
 
@@ -128,7 +135,7 @@ class SaveLoadTests(TestCase):
         in the same string formatting; any extractable fields will retain their
         data types.
         """
-        class reprable(object):
+        class Reprable(object):
             def __init__(self, value):
                 self.value = value
 
@@ -137,7 +144,7 @@ class SaveLoadTests(TestCase):
 
         inputEvent = {
             "log_format": "{object} {object.value}",
-            "object": reprable(7)
+            "object": Reprable(7)
         }
         outputEvent = eventFromJSON(self.savedEventJSON(inputEvent))
         self.assertEquals(formatEvent(outputEvent), "reprable 7")
@@ -148,11 +155,11 @@ class SaveLoadTests(TestCase):
         L{extractField} can extract fields from an object that's been saved and
         loaded from JSON.
         """
-        class obj(object):
+        class Obj(object):
             def __init__(self):
                 self.value = 345
 
-        inputEvent = dict(log_format="{object.value}", object=obj())
+        inputEvent = dict(log_format="{object.value}", object=Obj())
         loadedEvent = eventFromJSON(self.savedEventJSON(inputEvent))
         self.assertEquals(extractField("object.value", loadedEvent), 345)
 
@@ -177,7 +184,7 @@ class SaveLoadTests(TestCase):
             log.failure("a message about failure", f)
         import sys
         if sys.exc_info()[0] is not None:
-            # make sure we don't get the same Failure by accident.
+            # Make sure we don't get the same Failure by accident.
             sys.exc_clear()
         self.assertEquals(len(events), 1)
         loaded = eventFromJSON(self.savedEventJSON(events[0]))['log_failure']

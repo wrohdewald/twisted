@@ -70,6 +70,7 @@ class LogBeginner(object):
 
     @ivar _stdio: An object with C{stderr} and C{stdout} attributes (like the
         L{sys} module) which will be replaced when redirecting standard I/O.
+    @type _stdio: L{object}
     """
 
     def __init__(self, publisher, errorStream, stdio, warningsModule):
@@ -90,9 +91,9 @@ class LogBeginner(object):
         self._oldshowwarning = warningsModule.showwarning
 
 
-    def beginLoggingTo(self, observers, discardBuffer=False,
-                       redirectStandardIO=True,
-                       redirectWarnings=True):
+    def beginLoggingTo(
+        self, observers, discardBuffer=False, redirectStandardIO=True
+    ):
         """
         Begin logging to the given set of observers.  This will:
 
@@ -123,6 +124,10 @@ class LogBeginner(object):
             to the added observers.  (This argument is provided mainly for
             compatibility with legacy concerns.)
         @type discardBuffer: L{bool}
+
+        @param redirectStandardIO: If true, redirect standard output and
+            standard error to the observers.
+        @type redirectStandardIO: L{bool}
         """
         caller = currentframe(1)
         filename, lineno = caller.f_code.co_filename, caller.f_lineno
@@ -160,14 +165,38 @@ class LogBeginner(object):
             setattr(self._stdio, stream, loggingFile)
 
 
-    def showwarning(self, message, category, filename, lineno, file=None,
-                    line=None):
+    def showwarning(
+        self, message, category, filename, lineno, file=None, line=None
+    ):
         """
         Twisted-enabled wrapper around L{warnings.showwarning}.
 
         If C{file} is C{None}, the default behaviour is to emit the warning to
         the log system, otherwise the original L{warnings.showwarning} Python
         function is called.
+
+        @param message: A warning message to emit.
+        @type message: L{str}
+
+        @param category: A warning category to associate with C{message}.
+        @type category: L{warnings.Warning}
+
+        @param filename: A file name for the source code file issuing the
+            warning.
+        @type warning: L{str}
+
+        @param lineno: A line number in the source file where the warning was
+            issued.
+        @type lineno: L{int}
+
+        @param file: A file to write the warning message to.  If C{None},
+            write to L{sys.stderr}.
+        @type file: file-like object
+
+        @param line: A line of source code to include with the warning message.
+            If C{None}, attempt to read the line from C{filename} and
+            C{lineno}.
+        @type line: L{str}
         """
         if file is None:
             self._log.warn(

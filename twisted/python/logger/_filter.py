@@ -55,6 +55,9 @@ def shouldLogEvent(predicates, event):
     As predicates return C{maybe}, we keep calling the next predicate until we
     run out, at which point we return True.
 
+    @param predicates: The predicates to use.
+    @type predicates: iterable of L{ILogFilterPredicate}
+
     @param event: An event
     @type event: L{dict}
 
@@ -126,6 +129,10 @@ class LogLevelFilterPredicate(object):
     """
 
     def __init__(self, defaultLogLevel=LogLevel.info):
+        """
+        @param defaultLogLevel: The default minimum log level.
+        @type defaultLogLevel: L{LogLevel}
+        """
         self._logLevelsByNamespace = {}
         self.defaultLogLevel = defaultLogLevel
         self.clearLogLevels()

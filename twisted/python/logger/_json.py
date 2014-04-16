@@ -20,39 +20,49 @@ from twisted.python.failure import Failure
 
 
 
-def failureAsJSON(obj):
+def failureAsJSON(failure):
     """
-    Convert a L{Failure} to a JSON-serializable data structure.
+    Convert a failure to a JSON-serializable data structure.
 
-    @return: a L{dict} of L{str} to ...  stuff, mostly reminiscent of
+    @param failure: A failure to serialize.
+    @type failure: L{Failure}
+
+    @return: a mapping of strings to ... stuff, mostly reminiscent of
         L{Failure.__getstate__}
+    @rtype: L{dict}
     """
     return dict(
-        obj.__getstate__(),
+        failure.__getstate__(),
         type=dict(
-            __module__=obj.type.__module__,
-            __name__=obj.type.__name__,
+            __module__=failure.type.__module__,
+            __name__=failure.type.__name__,
         )
     )
 
 
 
-def nativify(x):
+def asBytes(obj):
     """
     On Python 2, we really need native strings in a variety of places;
     attribute names will sort of work in a __dict__, but they're subtly wrong;
     however, printing tracebacks relies on I/O to containers that only support
     bytes.  This function converts _all_ native strings within a
     JSON-deserialized object to bytes.
+
+    @param obj: A object to convert to bytes.
+    @type obj: L{object}
+
+    @return: A string of UTF-8 bytes.
+    @rtype: L{bytes}
     """
-    if isinstance(x, list):
-        return map(nativify, x)
-    elif isinstance(x, dict):
-        return dict((nativify(k), nativify(v)) for k, v in x.items())
-    elif isinstance(x, unicode):
-        return x.encode("utf-8")
+    if isinstance(obj, list):
+        return map(asBytes, obj)
+    elif isinstance(obj, dict):
+        return dict((asBytes(k), asBytes(v)) for k, v in obj.items())
+    elif isinstance(obj, unicode):
+        return obj.encode("utf-8")
     else:
-        return x
+        return obj
 
 
 
@@ -69,7 +79,7 @@ def failureFromJSON(failureDict):
     """
     newFailure = getattr(Failure, "__new__", None)
     if newFailure is None:
-        failureDict = nativify(failureDict)
+        failureDict = asBytes(failureDict)
         f = types.InstanceType(Failure)
     else:
         f = newFailure(Failure)

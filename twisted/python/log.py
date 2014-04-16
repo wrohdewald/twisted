@@ -199,6 +199,12 @@ class LogPublisher:
         """
         Begin logging to the L{LogBeginner} associated with this
         L{LogPublisher}.
+
+        @param other: the observer to log to.
+        @type other: L{LogBeginner}
+
+        @param setStdout: if true, send standard I/O to the observer as well.
+        @type setStdout: L{bool}
         """
         wrapped = LegacyLogObserverWrapper(other)
         self._legacyObservers.append(wrapped)

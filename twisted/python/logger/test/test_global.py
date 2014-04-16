@@ -37,14 +37,17 @@ def compareEvents(test, actualEvents, expectedEvents):
     if len(actualEvents) != len(expectedEvents):
         test.assertEquals(actualEvents, expectedEvents)
     allMergedKeys = set()
+
     for event in expectedEvents:
         allMergedKeys |= set(event.keys())
+
     def simplify(event):
         copy = event.copy()
         for key in event.keys():
             if key not in allMergedKeys:
                 copy.pop(key)
         return copy
+
     simplifiedActual = [simplify(event) for event in actualEvents]
     test.assertEquals(simplifiedActual, expectedEvents)
 
@@ -58,20 +61,55 @@ class LogBeginnerTests(unittest.TestCase):
     def setUp(self):
         self.publisher = LogPublisher()
         self.errorStream = io.StringIO()
+
         class NotSys(object):
             stdout = object()
             stderr = object()
+
         class NotWarnings(object):
             def __init__(self):
                 self.warnings = []
-            def showwarning(self, message, category, filename, lineno,
-                            file=None, line=None):
-                self.warnings.append((message, category, filename, lineno,
-                                      file, line))
+
+            def showwarning(
+                self, message, category, filename, lineno,
+                file=None, line=None
+            ):
+                """
+                Emulate warnings.showwarning.
+
+                @param message: A warning message to emit.
+                @type message: L{str}
+
+                @param category: A warning category to associate with
+                    C{message}.
+                @type category: L{warnings.Warning}
+
+                @param filename: A file name for the source code file issuing
+                    the warning.
+                @type warning: L{str}
+
+                @param lineno: A line number in the source file where the
+                    warning was issued.
+                @type lineno: L{int}
+
+                @param file: A file to write the warning message to.  If
+                    C{None}, write to L{sys.stderr}.
+                @type file: file-like object
+
+                @param line: A line of source code to include with the warning
+                    message. If C{None}, attempt to read the line from
+                    C{filename} and C{lineno}.
+                @type line: L{str}
+                """
+                self.warnings.append(
+                    (message, category, filename, lineno, file, line)
+                )
         self.sysModule = NotSys()
         self.warningsModule = NotWarnings()
-        self.beginner = LogBeginner(self.publisher, self.errorStream,
-                                    self.sysModule, self.warningsModule)
+        self.beginner = LogBeginner(
+            self.publisher, self.errorStream, self.sysModule,
+            self.warningsModule
+        )
 
 
     def test_beginLoggingTo_addObservers(self):

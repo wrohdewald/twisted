@@ -2,6 +2,9 @@
 # Copyright (c) Twisted Matrix Laboratories.
 # See LICENSE for details.
 
+"""
+Time zone utilities.
+"""
 
 from datetime import datetime, timedelta, tzinfo
 

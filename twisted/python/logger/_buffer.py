@@ -45,15 +45,15 @@ class LimitedHistoryLogObserver(object):
 
 
     def __call__(self, event):
-        """
-        When invoked, store the log event.
-        """
         self._buffer.append(event)
 
 
     def replayTo(self, otherObserver):
         """
         Re-play the buffered events to another log observer.
+
+        @param otherObserver: an observer to replay events to.
+        @type otherObserver: L{ILogObserver}
         """
         for event in self._buffer:
             otherObserver(event)

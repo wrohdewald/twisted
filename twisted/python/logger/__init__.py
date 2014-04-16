@@ -43,45 +43,45 @@ second example, it would be C{some.module.Foo}.
 """
 
 __all__ = [
-    # from ._levels
+    # From ._levels
     "InvalidLogLevelError", "LogLevel",
 
-    # from ._format
+    # From ._format
     "formatEvent", "formatEventAsClassicLogText",
     "formatTime", "timeFormatRFC3339",
 
-    # from ._flatten
+    # From ._flatten
     "extractField",
 
-    # from ._logger
+    # From ._logger
     "Logger",
 
-    # from ._observer
+    # From ._observer
     "ILogObserver", "LogPublisher",
 
-    # from ._buffer
+    # From ._buffer
     "LimitedHistoryLogObserver",
 
-    # from ._file
+    # From ._file
     "FileLogObserver", "textFileLogObserver",
 
-    # from ._filter
+    # From ._filter
     "PredicateResult", "ILogFilterPredicate",
     "FilteringLogObserver", "LogLevelFilterPredicate",
 
-    # from ._stdlib
+    # From ._stdlib
     "STDLibLogObserver",
 
-    # from ._io
+    # From ._io
     "LoggingFile",
 
-    # from ._legacy
+    # From ._legacy
     "LegacyLogger", "LegacyLogObserverWrapper",
 
-    # from ._global
+    # From ._global
     "globalLogPublisher", "globalLogBeginner", "LogBeginner",
 
-    # from ._json
+    # From ._json
     "eventAsJSON", "eventFromJSON",
     "jsonFileLogObserver", "eventsFromJSONLogFile",
 ]

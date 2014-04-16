@@ -65,10 +65,11 @@ class FlatFormattingTests(unittest.TestCase):
         L{formatEvent} will prefer the stored C{str()} or C{repr()} value for
         an object, in case the other version.
         """
-        class unpersistable(object):
+        class Unpersistable(object):
             destructed = False
 
             def selfDestruct(self):
+                """Self destruct"""
                 self.destructed = True
 
             def __repr__(self):
@@ -77,7 +78,7 @@ class FlatFormattingTests(unittest.TestCase):
                 else:
                     return "un-persistable"
 
-        up = unpersistable()
+        up = Unpersistable()
         event1 = dict(
             log_format="unpersistable: {unpersistable}", unpersistable=up
         )
@@ -160,6 +161,8 @@ class FlatFormattingTests(unittest.TestCase):
     def test_extractField(self, flattenFirst=lambda x: x):
         """
         L{extractField} will extract a field used in the format string.
+
+        @param flattenFirst: callable to flatten an event
         """
         class ObjectWithRepr(object):
             def __repr__(self):
