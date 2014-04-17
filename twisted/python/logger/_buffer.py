@@ -52,7 +52,7 @@ class LimitedHistoryLogObserver(object):
         """
         Re-play the buffered events to another log observer.
 
-        @param otherObserver: an observer to replay events to.
+        @param otherObserver: An observer to replay events to.
         @type otherObserver: L{ILogObserver}
         """
         for event in self._buffer:

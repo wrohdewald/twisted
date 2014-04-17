@@ -48,12 +48,12 @@ def shouldLogEvent(predicates, event):
     By default, the result is C{True}; so if there are no predicates,
     everything will be logged.
 
-    If any predicate returns C{yes}, then we will immediately return True.
+    If any predicate returns C{yes}, then we will immediately return C{True}.
 
-    If any predicate returns C{no}, then we will immediately return False.
+    If any predicate returns C{no}, then we will immediately return C{False}.
 
     As predicates return C{maybe}, we keep calling the next predicate until we
-    run out, at which point we return True.
+    run out, at which point we return C{True}.
 
     @param predicates: The predicates to use.
     @type predicates: iterable of L{ILogFilterPredicate}
@@ -61,7 +61,7 @@ def shouldLogEvent(predicates, event):
     @param event: An event
     @type event: L{dict}
 
-    @return: True if the message should be forwarded on, False if not.
+    @return: True if the message should be forwarded on, C{False} if not.
     @rtype: L{bool}
     """
     for predicate in predicates:

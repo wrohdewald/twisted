@@ -22,8 +22,10 @@ from .._stdlib import STDLibLogObserver
 
 def nextLine():
     """
-    @return: a 2-tuple of (filename, line-number) of the line immediately after
-        where this function is called.
+    Retrive the file name and line number immediately after where this function
+        is called.
+    @return: the file name and line number
+    @rtype: 2-L{tuple} of L{str}, L{int}
     """
     caller = currentframe(1)
     return (getsourcefile(sys.modules[caller.f_globals['__name__']]),
@@ -98,10 +100,10 @@ class STDLibLogObserverTests(unittest.TestCase):
         """
         levelMapping = {
             None: py_logging.INFO,  # Default
-            LogLevel.debug:    py_logging.DEBUG,
-            LogLevel.info:     py_logging.INFO,
-            LogLevel.warn:     py_logging.WARNING,
-            LogLevel.error:    py_logging.ERROR,
+            LogLevel.debug: py_logging.DEBUG,
+            LogLevel.info: py_logging.INFO,
+            LogLevel.warn: py_logging.WARNING,
+            LogLevel.error: py_logging.ERROR,
             LogLevel.critical: py_logging.CRITICAL,
         }
 
