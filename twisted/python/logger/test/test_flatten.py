@@ -187,6 +187,9 @@ class FlatFormattingTests(unittest.TestCase):
             counter = count()
 
             class CountStr(object):
+                """
+                Hack
+                """
                 def __str__(self):
                     return str(next(counter))
 
