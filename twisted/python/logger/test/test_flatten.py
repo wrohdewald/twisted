@@ -180,8 +180,8 @@ class FlatFormattingTests(unittest.TestCase):
     def _test_formatFlatEvent_fieldNamesSame(self, event=None):
         """
         The same format field used twice in one event is rendered twice.
-
         @param event: An event to flatten.  If C{None}, create a new event.
+        @return: C{event} or the event created.
         """
         if event is None:
             counter = count()
