@@ -276,9 +276,16 @@ class LogBeginnerTests(unittest.TestCase):
         self.warningsModule.showwarning(
             "another message", DeprecationWarning, __file__, 2
         )
+        f = io.StringIO()
+        self.warningsModule.showwarning(
+            "yet another", DeprecationWarning, __file__, 3, file=f
+        )
         self.assertEquals(
             self.warningsModule.warnings,
-            [("a message", DeprecationWarning, __file__, 1, None, None)]
+            [
+                ("a message", DeprecationWarning, __file__, 1, None, None),
+                ("yet another", DeprecationWarning, __file__, 3, f, None),
+            ]
         )
         compareEvents(
             self, x,
