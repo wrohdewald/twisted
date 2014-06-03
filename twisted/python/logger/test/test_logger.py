@@ -222,8 +222,6 @@ class LoggerTests(unittest.TestCase):
             log_source="*source*",
         )
 
-        # FIXME: Should conflicts log errors?
-
         self.assertEquals(log.event["log_format"], u"*")
         self.assertEquals(log.event["log_level"], LogLevel.warn)
         self.assertEquals(log.event["log_namespace"], log.namespace)
