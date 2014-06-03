@@ -75,7 +75,7 @@ class Logger(object):
         declared on.  In the above example, the namespace would be
         C{athing.Something}.
 
-        Additionally, it's source will be set to the actual object referring to
+        Additionally, its source will be set to the actual object referring to
         the L{Logger}.  In the above example, C{Something.log.source} would be
         C{Something}, and C{Something().log.source} would be an instance of
         C{Something}.
