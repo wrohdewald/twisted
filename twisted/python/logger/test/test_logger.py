@@ -246,13 +246,11 @@ class LoggerTests(unittest.TestCase):
         """
         Tracing keeps track of forwarding to the publisher.
         """
-        log = TestLogger()
-
         def publisher(event):
             observer(event)
 
         def observer(event):
             self.assertEquals(event["log_trace"], [(log, publisher)])
 
-        log.publisher = publisher
+        log = TestLogger(observer=publisher)
         log.info("Hello.", log_trace=[])
