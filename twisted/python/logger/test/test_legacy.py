@@ -384,7 +384,7 @@ class TestOldLogPublisher(unittest.TestCase):
         """
         self.old.msg(isError=True)
         self.assertEquals(len(self.events), 1)
-        self.assertEquals(self.events[0]['log_level'], LogLevel.error)
+        self.assertEquals(self.events[0]['log_level'], LogLevel.critical)
 
 
     def test_oldStyleLogLevel(self):
