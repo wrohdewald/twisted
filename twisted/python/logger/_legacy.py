@@ -218,7 +218,7 @@ def publishToNewObserver(observer, eventDict, textFromEventDict):
         if "logLevel" in eventDict:
             level = fromStdlibLogLevelMapping[eventDict["logLevel"]]
         elif eventDict["isError"]:
-            level = LogLevel.error
+            level = LogLevel.critical
         else:
             level = LogLevel.info
 
