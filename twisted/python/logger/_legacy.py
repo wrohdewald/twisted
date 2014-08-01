@@ -106,12 +106,16 @@ class LegacyLogger(object):
             _stuff = Failure(_stuff)
 
         if isinstance(_stuff, Failure):
-            self.newStyleLogger.emit(LogLevel.error, failure=_stuff, why=_why,
-                                     isError=1, **kwargs)
+            self.newStyleLogger.emit(
+                LogLevel.critical,
+                failure=_stuff, why=_why, isError=1, **kwargs
+            )
         else:
             # We got called with an invalid _stuff.
-            self.newStyleLogger.emit(LogLevel.error, repr(_stuff), why=_why,
-                                     isError=1, **kwargs)
+            self.newStyleLogger.emit(
+                LogLevel.critical,
+                repr(_stuff), why=_why, isError=1, **kwargs
+            )
 
 
 
