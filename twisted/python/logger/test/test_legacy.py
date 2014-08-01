@@ -201,7 +201,17 @@ class LegacyLoggerTests(unittest.TestCase):
             log.newStyleLogger.emitted["level"],
             LogLevel.critical
         )
-        self.assertEquals(log.newStyleLogger.emitted["format"], None)
+
+        if why:
+            messagePrefix = "{0}\nTraceback (".format(why)
+        else:
+            messagePrefix = "Unhandled Error\nTraceback ("
+
+        self.assertTrue(
+            log.newStyleLogger.emitted["format"].startswith(
+                messagePrefix
+            )
+        )
 
         emittedKwargs = log.newStyleLogger.emitted["kwargs"]
         self.assertIdentical(emittedKwargs["failure"].__class__, Failure)
