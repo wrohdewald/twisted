@@ -699,7 +699,7 @@ class PythonLoggingObserverTestCase(unittest.SynchronousTestCase):
         """
         f = failure.Failure(ValueError("That is bad."))
         self.lp.msg(failure=f, isError=True)
-        prefix = "CRITICAL:"
+        prefix = b"CRITICAL:"
         output = self.out.getvalue()
         self.assertTrue(
             output.startswith(prefix),
