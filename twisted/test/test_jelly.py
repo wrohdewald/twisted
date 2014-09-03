@@ -5,6 +5,8 @@
 Test cases for L{jelly} object serialization.
 """
 
+from twisted.python.compat import _PY3
+
 import datetime
 import decimal
 
@@ -337,7 +339,7 @@ class JellyTestCase(unittest.TestCase):
         output = jelly.unjelly(inputJelly)
         # Even if the class is different, it should coerce to the same list
         self.assertEqual(list(inputList[0]), list(output[0]))
-        if set is jelly._sets.Set:
+        if not _PY3 and set is jelly._sets.Set:
             self.assertIsInstance(output[0], jelly._sets.Set)
         else:
             self.assertIsInstance(output[0], set)
@@ -355,11 +357,15 @@ class JellyTestCase(unittest.TestCase):
         output = jelly.unjelly(inputJelly)
         # Even if the class is different, it should coerce to the same list
         self.assertEqual(list(inputList[0]), list(output[0]))
-        if frozenset is jelly._sets.ImmutableSet:
+        if not _PY3 and frozenset is jelly._sets.ImmutableSet:
             self.assertIsInstance(output[0], jelly._sets.ImmutableSet)
         else:
             self.assertIsInstance(output[0], frozenset)
 
+    if _PY3:
+        # the sets module is deprecated since 2.6 and removed with 3.0
+        test_oldSets.skip = "Not available in Python 3"
+        test_oldImmutableSets.skip = "Not available in Python 3"
 
     def test_simple(self):
         """

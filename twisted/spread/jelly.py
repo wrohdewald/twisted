@@ -54,12 +54,15 @@ Instance Method: s.center, where s is an instance of UserString.UserString::
 The C{set} builtin and the C{sets.Set} class are serialized to the same
 thing, and unserialized to C{set} if available, else to C{sets.Set}. It means
 that there's a possibility of type switching in the serialization process. The
-solution is to always use C{set}.
+solution is to always use C{set}. C{sets.Set} is deprecated since Python 2.6
+and does not exist anymore since Python 3.0.
 
 The same rule applies for C{frozenset} and C{sets.ImmutableSet}.
 
 @author: Glyph Lefkowitz
 """
+
+from twisted.python.compat import _PY3
 
 # System Imports
 import pickle
@@ -85,13 +88,15 @@ import copy
 import datetime
 from types import BooleanType
 
-try:
-    # Filter out deprecation warning for Python >= 2.6
-    warnings.filterwarnings("ignore", category=DeprecationWarning,
-        message="the sets module is deprecated", append=True)
-    import sets as _sets
-finally:
-    warnings.filters.pop()
+if not _PY3:
+    # Python 3 dropped the sets module
+    try:
+        # Filter out deprecation warning for Python >= 2.6
+        warnings.filterwarnings("ignore", category=DeprecationWarning,
+            message="the sets module is deprecated", append=True)
+        import sets as _sets
+    finally:
+        warnings.filters.pop()
 
 
 from zope.interface import implementer
@@ -532,9 +537,9 @@ class _Jellier:
                     sxp.append(dictionary_atom)
                     for key, val in obj.items():
                         sxp.append([self.jelly(key), self.jelly(val)])
-                elif objType is set or objType is _sets.Set:
+                elif objType is set or (not _PY3 and objType is _sets.Set):
                     sxp.extend(self._jellyIterable(set_atom, obj))
-                elif objType is frozenset or objType is _sets.ImmutableSet:
+                elif objType is frozenset or (not _PY3 and objType is _sets.ImmutableSet):
                     sxp.extend(self._jellyIterable(frozenset_atom, obj))
                 else:
                     className = qual(obj.__class__)
