@@ -3,9 +3,9 @@
 
 from __future__ import division, absolute_import
 
-import StringIO
 from twisted.python.compat import _PY3, long
 
+import io
 import sys
 from functools import partial
 
@@ -24,7 +24,7 @@ class MathTestCase(unittest.TestCase):
     def test_int2b128(self):
         funkylist = chain(range(0,100), range(1000,1100), range(1000000,1000100), [1024 **10,])
         for i in funkylist:
-            x = StringIO.StringIO()
+            x = io.BytesIO()
             banana.int2b128(i, x.write)
             v = x.getvalue()
             y = banana.b1282int(v)
@@ -91,9 +91,12 @@ class BananaTestBase(unittest.TestCase):
 
         @param isClient: The role that self.enc (banana.Banana) should take.
         """
-        self.io = StringIO.StringIO()
+        self.io = io.BytesIO()
         self.enc = self.encClass(isClient)
         self.enc.makeConnection(protocol.FileWrapper(self.io))
+        # We should inherit from FileWrapper and define handleException.
+        # Currently exceptions are silently swallowed.
+        # But then exarkun said this should be ported to StringTransport.
         selectDialect(self.enc, b"none")
         self.enc.expressionReceived = self.putResult
         self.encode = partial(encode, self.encClass)
@@ -390,7 +393,8 @@ class BananaTestCase(BananaTestBase):
         self.enc.setPrefixLimit(self.enc.prefixLimit * 2)
         self.enc.sendEncoded(smallest)
         encoded = self.io.getvalue()
-        self.io.truncate(0)
+        self.io.seek(0)
+        self.io.truncate()
         self.enc.setPrefixLimit(self.enc.prefixLimit // 2)
 
         self.assertRaises(banana.BananaError, self.enc.dataReceived, encoded)
@@ -418,7 +422,8 @@ class BananaTestCase(BananaTestBase):
         self.enc.setPrefixLimit(self.enc.prefixLimit * 2)
         self.enc.sendEncoded(largest)
         encoded = self.io.getvalue()
-        self.io.truncate(0)
+        self.io.seek(0)
+        self.io.truncate()
         self.enc.setPrefixLimit(self.enc.prefixLimit // 2)
 
         self.assertRaises(banana.BananaError, self.enc.dataReceived, encoded)

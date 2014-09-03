@@ -14,7 +14,9 @@ for more details.
 
 from __future__ import division, absolute_import
 
-import copy, cStringIO, struct
+from twisted.python.compat import _PY3, long
+
+import copy, io, struct
 
 from twisted.python.compat import _PY3, networkChar
 from twisted.internet import protocol
@@ -312,9 +314,9 @@ class Banana(protocol.Protocol, styles.Ephemeral):
 
         @return: C{None}
         """
-        io = cStringIO.StringIO()
-        self._encode(obj, io.write)
-        value = io.getvalue()
+        bytesio = io.BytesIO()
+        self._encode(obj, bytesio.write)
+        value = bytesio.getvalue()
         self.transport.write(value)
 
     def _encode(self, obj, write):
@@ -370,11 +372,13 @@ _i._selectDialect(b"none")
 
 
 def encode(lst):
-    """Encode a list s-expression."""
-    io = cStringIO.StringIO()
-    _i.transport = io
+    """
+    Encode a list s-expression.
+    """
+    bytesio = io.BytesIO()
+    _i.transport = bytesio
     _i.sendEncoded(lst)
-    return io.getvalue()
+    return bytesio.getvalue()
 
 
 def decode(st):
