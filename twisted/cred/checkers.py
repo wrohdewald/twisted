@@ -4,7 +4,7 @@
 
 import os
 
-from zope.interface import implements, Interface, Attribute
+from zope.interface import implementer, Interface, Attribute
 
 from twisted.internet import defer
 from twisted.python import failure, log
@@ -49,14 +49,15 @@ class ICredentialsChecker(Interface):
 ANONYMOUS = ()
 
 
+@implementer(ICredentialsChecker)
 class AllowAnonymousAccess:
-    implements(ICredentialsChecker)
     credentialInterfaces = credentials.IAnonymous,
 
     def requestAvatarId(self, credentials):
         return defer.succeed(ANONYMOUS)
 
 
+@implementer(ICredentialsChecker)
 class InMemoryUsernamePasswordDatabaseDontUse:
     """
     An extremely simple credentials checker.
@@ -68,8 +69,6 @@ class InMemoryUsernamePasswordDatabaseDontUse:
     toy.  If you need a simple credentials checker for a real application,
     see L{FilePasswordDB}.
     """
-
-    implements(ICredentialsChecker)
 
     credentialInterfaces = (credentials.IUsernamePassword,
                             credentials.IUsernameHashedPassword)
@@ -96,6 +95,7 @@ class InMemoryUsernamePasswordDatabaseDontUse:
             return defer.fail(error.UnauthorizedLogin())
 
 
+@implementer(ICredentialsChecker)
 class FilePasswordDB:
     """A file-based, text-based username/password database.
 
@@ -108,8 +108,6 @@ class FilePasswordDB:
     credentials.  If the passwords are stored plaintext,
     IUsernameHashedPassword credentials will be checkable as well.
     """
-
-    implements(ICredentialsChecker)
 
     cache = False
     _credCache = None
@@ -245,8 +243,8 @@ class FilePasswordDB:
 
 
 
+@implementer(ICredentialsChecker)
 class PluggableAuthenticationModulesChecker:
-    implements(ICredentialsChecker)
     credentialInterfaces = credentials.IPluggableAuthenticationModules,
     service = 'Twisted'
 
