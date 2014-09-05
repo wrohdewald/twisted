@@ -14,7 +14,7 @@ import hmac, time, random, re
 from hashlib import md5
 
 from twisted.python.randbytes import secureRandom
-from twisted.cred._digest import calcResponse, calcHA1, calcHA2
+from twisted.cred._digest import calcResponse, calcHA1, calcHA2, updateHash
 from twisted.cred import error
 
 class ICredentials(Interface):

@@ -41,6 +41,7 @@ from twisted.internet import defer, protocol
 from twisted.cred.portal import Portal
 from twisted.cred.credentials import IAnonymous, ICredentials
 from twisted.cred.credentials import IUsernameHashedPassword, Anonymous
+from twisted.cred.credentials import updateHash
 from twisted.persisted import styles
 from twisted.python.components import registerAdapter
 
@@ -1049,11 +1050,11 @@ def respond(challenge, password):
     This is useful for challenge/response authentication.
     """
     m = md5()
-    m.update(password)
+    updateHash(m, password)
     hashedPassword = m.digest()
     m = md5()
-    m.update(hashedPassword)
-    m.update(challenge)
+    updateHash(m, hashedPassword)
+    updateHash(m, challenge)
     doubleHashedPassword = m.digest()
     return doubleHashedPassword
 
@@ -1403,14 +1404,16 @@ class _PortalAuthChallenger(Referenceable, _JellyableAvatarMixin):
 
     # IUsernameHashedPassword:
     def checkPassword(self, password):
-        return self.checkMD5Password(md5(password).digest())
+        md = md5()
+        updateHash(md, password)
+        return self.checkMD5Password(md.digest())
 
 
     # IUsernameMD5Password
     def checkMD5Password(self, md5Password):
         md = md5()
-        md.update(md5Password)
-        md.update(self.challenge)
+        updateHash(md, md5Password)
+        updateHash(md, self.challenge)
         correct = md.digest()
         return self.response == correct
 

@@ -8,8 +8,19 @@ Calculations for HTTP Digest authentication.
 @see: U{http://www.faqs.org/rfcs/rfc2617.html}
 """
 
+from twisted.python.compat import _PY3, unicode
+
 from hashlib import md5, sha1
 
+def updateHash(m, value):
+    """
+    I am a wrapper around m.update(value)
+    If value is unicode, I encode it first
+    as a utf-8 string
+    """
+    if isinstance(value, unicode):
+        value = value.encode('utf-8')
+    m.update(value)
 
 
 # The digest math
@@ -55,11 +66,11 @@ def calcHA1(pszAlg, pszUserName, pszRealm, pszPassword, pszNonce, pszCNonce,
     if preHA1 is None:
         # We need to calculate the HA1 from the username:realm:password
         m = algorithms[pszAlg]()
-        m.update(pszUserName)
-        m.update(":")
-        m.update(pszRealm)
-        m.update(":")
-        m.update(pszPassword)
+        updateHash(m, pszUserName)
+        updateHash(m, ":")
+        updateHash(m, pszRealm)
+        updateHash(m, ":")
+        updateHash(m, pszPassword)
         HA1 = m.digest()
     else:
         # We were given a username:realm:password
@@ -67,11 +78,11 @@ def calcHA1(pszAlg, pszUserName, pszRealm, pszPassword, pszNonce, pszCNonce,
 
     if pszAlg == "md5-sess":
         m = algorithms[pszAlg]()
-        m.update(HA1)
-        m.update(":")
-        m.update(pszNonce)
-        m.update(":")
-        m.update(pszCNonce)
+        updateHash(m, HA1)
+        updateHash(m, ":")
+        updateHash(m, pszNonce)
+        updateHash(m, ":")
+        updateHash(m, pszCNonce)
         HA1 = m.digest()
 
     return HA1.encode('hex')
@@ -92,12 +103,12 @@ def calcHA2(algo, pszMethod, pszDigestUri, pszQop, pszHEntity):
         digest.
     """
     m = algorithms[algo]()
-    m.update(pszMethod)
-    m.update(":")
-    m.update(pszDigestUri)
+    updateHash(m, pszMethod)
+    updateHash(m, ":")
+    updateHash(m, pszDigestUri)
     if pszQop == "auth-int":
-        m.update(":")
-        m.update(pszHEntity)
+        updateHash(m, ":")
+        updateHash(m, pszHEntity)
     return m.digest().encode('hex')
 
 
@@ -113,17 +124,17 @@ def calcResponse(HA1, HA2, algo, pszNonce, pszNonceCount, pszCNonce, pszQop):
     @param pszQop: The Quality-of-Protection value.
     """
     m = algorithms[algo]()
-    m.update(HA1)
-    m.update(":")
-    m.update(pszNonce)
-    m.update(":")
+    updateHash(m, HA1)
+    updateHash(m, ":")
+    updateHash(m, pszNonce)
+    updateHash(m, ":")
     if pszNonceCount and pszCNonce:
-        m.update(pszNonceCount)
-        m.update(":")
-        m.update(pszCNonce)
-        m.update(":")
-        m.update(pszQop)
-        m.update(":")
-    m.update(HA2)
+        updateHash(m, pszNonceCount)
+        updateHash(m, ":")
+        updateHash(m, pszCNonce)
+        updateHash(m, ":")
+        updateHash(m, pszQop)
+        updateHash(m, ":")
+    updateHash(m, HA2)
     respHash = m.digest().encode('hex')
     return respHash
