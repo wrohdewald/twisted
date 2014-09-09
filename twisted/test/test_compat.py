@@ -14,8 +14,8 @@ from twisted.trial import unittest
 
 from twisted.python.compat import (
     reduce, execfile, _PY3, comparable, cmp, nativeString, networkString,
-    unicode as unicodeCompat, lazyByteSlice, reraise, NativeStringIO,
-    iterbytes, intToBytes, networkChar, ioType
+    unicode as unicodeCompat, long as longCompat, xrange as xrangeCompat,
+    lazyByteSlice, reraise, NativeStringIO,
 )
 from twisted.python.filepath import FilePath
 
@@ -553,6 +553,22 @@ class StringTests(unittest.SynchronousTestCase):
         self.assertRaises(TypeError, nativeString, 1)
 
 
+    def test_nativeStringIO(self):
+        """
+        L{NativeStringIO} is a file-like object that stores native strings in
+        memory.
+        """
+        f = NativeStringIO()
+        f.write("hello")
+        f.write(" there")
+        self.assertEqual(f.getvalue(), "hello there")
+
+
+class TypeTests(unittest.SynchronousTestCase):
+    """
+    Compatibility types.
+    """
+
     def test_unicode(self):
         """
         C{compat.unicode} is C{str} on Python 3, C{unicode} on Python 2.
@@ -564,15 +580,26 @@ class StringTests(unittest.SynchronousTestCase):
         self.assertTrue(unicodeCompat is expected)
 
 
-    def test_nativeStringIO(self):
+    def test_long(self):
         """
-        L{NativeStringIO} is a file-like object that stores native strings in
-        memory.
+        C{compat.long} is C{int} on Python 3, C{long} on Python 2.
         """
-        f = NativeStringIO()
-        f.write("hello")
-        f.write(" there")
-        self.assertEqual(f.getvalue(), "hello there")
+        if _PY3:
+            expected = int
+        else:
+            expected = long
+        self.assertTrue(longCompat is expected)
+
+
+    def test_xrange(self):
+        """
+        C{compat.xrange} is C{range} on Python 3, C{xrange} on Python 2.
+        """
+        if _PY3:
+            expected = range
+        else:
+            expected = xrange
+        self.assertTrue(xrangeCompat is expected)
 
 
 

@@ -270,9 +270,12 @@ def comparable(klass):
 
 if _PY3:
     unicode = str
+    long = int
+    xrange = range
 else:
     unicode = unicode
-
+    long = long
+    xrange = xrange
 
 
 def ioType(fileIshObject, default=unicode):

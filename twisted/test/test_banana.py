@@ -4,6 +4,8 @@
 from __future__ import division, absolute_import
 
 import StringIO
+from twisted.python.compat import _PY3, long
+
 import sys
 from functools import partial
 
@@ -20,7 +22,7 @@ from twisted.test.proto_helpers import StringTransport
 
 class MathTestCase(unittest.TestCase):
     def test_int2b128(self):
-        funkylist = chain(range(0,100), range(1000,1100), range(1000000,1000100), [1024 **10l,])
+        funkylist = chain(range(0,100), range(1000,1100), range(1000000,1000100), [1024 **10,])
         for i in funkylist:
             x = StringIO.StringIO()
             banana.int2b128(i, x.write)
@@ -281,7 +283,7 @@ class BananaTestCase(BananaTestBase):
         banana without changing value and should come out represented
         as an C{int} (regardless of the type which was encoded).
         """
-        for value in (10151, 10151L):
+        for value in (10151, long(10151)):
             self.enc.sendEncoded(value)
             self.enc.dataReceived(self.io.getvalue())
             self.assertEqual(self.result, 10151)
@@ -331,10 +333,14 @@ class BananaTestCase(BananaTestBase):
                 for n in (m, -m-1):
                     self.enc.dataReceived(self.encode(n))
                     self.assertEqual(self.result, n)
-                    if n > sys.maxint or n < -sys.maxint - 1:
-                        self.assertIsInstance(self.result, long)
-                    else:
+                    if _PY3:
+                        # does not know long
                         self.assertIsInstance(self.result, int)
+                    else:
+                        if n > sys.maxint or n < -sys.maxint - 1:
+                            self.assertIsInstance(self.result, long)
+                        else:
+                            self.assertIsInstance(self.result, int)
 
 
     def _getSmallest(self):
@@ -419,9 +425,9 @@ class BananaTestCase(BananaTestBase):
 
 
     def test_negativeLong(self):
-        self.enc.sendEncoded(-1015l)
+        self.enc.sendEncoded(long(-1015))
         self.enc.dataReceived(self.io.getvalue())
-        assert self.result == -1015l, "should be -1015l, got %s" % self.result
+        assert self.result == long(-1015), "should be long(-1015), got %s" % self.result
 
     def test_integer(self):
         self.enc.sendEncoded(1015)
@@ -452,7 +458,7 @@ class BananaTestCase(BananaTestBase):
         foo = [1, 2, [3, 4], [30.5, 40.2], 5,
                [b"six", b"seven", [b"eight", 9]], [10],
                # TODO: currently the C implementation's a bit buggy...
-               sys.maxint * 3l, sys.maxint * 2l, sys.maxint * -2l]
+               sys.maxint * 3l, sys.maxint * 2l, sys.maxint * long(-2)]
         self.enc.sendEncoded(foo)
         self.feed(self.io.getvalue())
         assert self.result == foo, "%s!=%s" % (repr(self.result), repr(foo))
