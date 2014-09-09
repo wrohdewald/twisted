@@ -598,6 +598,9 @@ class BrokerTestCase(unittest.TestCase):
         foo = NestedRemote()
         s.setNameForLocal("foo", foo)
         x = c.remoteForName("foo")
+        # XXX this loop is about 3 times slower with PY3
+        # The difference of all test_banana and all test_jelly is minimal
+        # and this is the only pb test which is significantly slower
         for igno in xrange(pb.MAX_BROKER_REFS + 10):
             if s.transport.closed or c.transport.closed:
                 break
