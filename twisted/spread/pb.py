@@ -30,6 +30,8 @@ To get started, begin with L{PBClientFactory} and L{PBServerFactory}.
 from __future__ import division, absolute_import
 
 from twisted.python.compat import xrange, networkString, nativeString
+from twisted.python.compat import unicode
+from twisted.python.util import FancyEqMixin
 
 import random
 import types
@@ -133,20 +135,19 @@ class RemoteError(Exception):
 
 
 
-class RemoteMethod:
+class RemoteMethod(FancyEqMixin):
     """
     This is a translucent reference to a remote message.
     """
+
+    compareAttributes = ("obj", "name")
+
     def __init__(self, obj, name):
         """
         Initialize with a L{RemoteReference} and the name of this message.
         """
         self.obj = obj
         self.name = name
-
-
-    def __cmp__(self, other):
-        return cmp((self.obj, self.name), other)
 
 
     def __hash__(self):
@@ -352,13 +353,17 @@ class RemoteReference(Serializable, styles.Ephemeral):
         """
         return RemoteMethod(self, key)
 
-    def __cmp__(self,other):
-        """Compare me [to another L{RemoteReference}].
+    def __eq__(self, other):
+        """Compare me for equality to another L{RemoteReference}].
         """
         if isinstance(other, RemoteReference):
             if other.broker == self.broker:
-                return cmp(self.luid, other.luid)
-        return cmp(self.broker, other)
+                return self.luid == other.luid
+        return self.broker == other.broker
+    def __ne__(self, other):
+        """Compare me for inequality to another L{RemoteReference}].
+        """
+        return not self == other
 
     def __hash__(self):
         """Hash me.
