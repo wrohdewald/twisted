@@ -45,12 +45,12 @@ setCopierForClassTree = setUnjellyableForClassTree
 setFactoryForClass = setUnjellyableFactoryForClass
 copyTags = unjellyableRegistry
 
-local_atom = "local"
-copy_atom = "copy"
-cache_atom = "cache"
-lcache_atom = "lcache"
-cached_atom = "cached"
-remote_atom = "remote"
+local_atom = b"local"
+copy_atom = b"copy"
+cache_atom = b"cache"
+lcache_atom = b"lcache"
+cached_atom = b"cached"
+remote_atom = b"remote"
 
 
 class NoSuchMethod(AttributeError):
