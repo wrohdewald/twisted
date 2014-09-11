@@ -117,27 +117,40 @@ from twisted.python.versions import Version
 
 DictTypes = (DictionaryType,)
 
-None_atom = "None"                  # N
+true_atom = b'true'
+false_atom = b'false'
+
+none_atom = b'None'                  # N
 # code
-class_atom = "class"                # c
-module_atom = "module"              # m
-function_atom = "function"          # f
+class_atom = b'class'                # c
+module_atom = b'module'              # m
+function_atom = b'function'          # f
+method_atom = b'method'
+
+# simple types
+unicode_atom = b'unicode'
+boolean_atom = b'boolean'
+date_atom = b'date'
+time_atom = b'time'
+timedelta_atom = b'timedelta'
+datetime_atom = b'datetime'
+decimal_atom = b'decimal'
 
 # references
-dereference_atom = 'dereference'    # D
-persistent_atom = 'persistent'      # p
-reference_atom = 'reference'        # r
+dereference_atom = b'dereference'    # D
+persistent_atom = b'persistent'      # p
+reference_atom = b'reference'        # r
 
 # mutable collections
-dictionary_atom = "dictionary"      # d
-list_atom = 'list'                  # l
-set_atom = 'set'
+dictionary_atom = b'dictionary'      # d
+list_atom = b'list'                  # l
+set_atom = b'set'
 
 # immutable collections
 #   (assignment to __dict__ and __class__ still might go away!)
-tuple_atom = "tuple"                # t
-instance_atom = 'instance'          # i
-frozenset_atom = 'frozenset'
+tuple_atom = b'tuple'                # t
+instance_atom = b'instance'          # i
+frozenset_atom = b'frozenset'
 
 
 deprecatedModuleAttribute(
@@ -146,7 +159,7 @@ deprecatedModuleAttribute(
     "twisted.spread.jelly", "instance_atom")
 
 # errors
-unpersistable_atom = "unpersistable"# u
+unpersistable_atom = b'unpersistable'# u
 unjellyableRegistry = {}
 unjellyableFactoryRegistry = {}
 
@@ -500,48 +513,49 @@ class _Jellier:
                 except AttributeError:
                     im_class = None
                 if im_class:
-                    return ["method",
+                    return [method_atom,
                         obj.__name__.encode(),
                         [none_atom],
                         self.jelly(im_class)]
             if objType is MethodType:
-                return ["method",
+                return [method_atom,
                         get_imFunc(obj).__name__,
                         self.jelly(get_imSelf(obj)),
                         self.jelly(get_imClass(obj))]
             elif objType is unicode:
-                return ['unicode', obj.encode('UTF-8')]
+                return [unicode_atom, obj.encode('UTF-8')]
             elif objType is NoneType:
-                return ['None']
+                return [none_atom]
             elif objType is FunctionType:
+            # TODO: has probably no test. What is whichmodule ?
                 name = obj.__name__
-                return ['function', str(pickle.whichmodule(obj, obj.__name__))
-                        + '.' +
-                        name]
+                return [function_atom, str(pickle.whichmodule(obj, obj.__name__))
+                        + b'.' +
+                        name.encode()]
             elif objType is ModuleType:
-                return ['module', obj.__name__]
+                return [module_atom, obj.__name__.encode()]
             elif objType is BooleanType:
-                return ['boolean', obj and 'true' or 'false']
+                return [boolean_atom, true_atom if obj else false_atom]
             elif objType is datetime.datetime:
                 if obj.tzinfo:
                     raise NotImplementedError(
                         "Currently can't jelly datetime objects with tzinfo")
-                return ['datetime', '%s %s %s %s %s %s %s' % (
+                return [datetime_atom, b'%s %s %s %s %s %s %s' % (
                     obj.year, obj.month, obj.day, obj.hour,
                     obj.minute, obj.second, obj.microsecond)]
             elif objType is datetime.time:
                 if obj.tzinfo:
                     raise NotImplementedError(
                         "Currently can't jelly datetime objects with tzinfo")
-                return ['time', '%s %s %s %s' % (obj.hour, obj.minute,
+                return [time_atom, b'%s %s %s %s' % (obj.hour, obj.minute,
                                                  obj.second, obj.microsecond)]
             elif objType is datetime.date:
-                return ['date', '%s %s %s' % (obj.year, obj.month, obj.day)]
+                return [date_atom, b'%s %s %s' % (obj.year, obj.month, obj.day)]
             elif objType is datetime.timedelta:
-                return ['timedelta', '%s %s %s' % (obj.days, obj.seconds,
+                return [timedelta_atom, b'%s %s %s' % (obj.days, obj.seconds,
                                                    obj.microseconds)]
             elif objType is ClassType or issubclass(objType, type):
-                return ['class', qual(obj)]
+                return [class_atom, qual(obj)]
             elif objType is decimal.Decimal:
                 return self.jelly_decimal(obj)
             else:
@@ -622,7 +636,7 @@ class _Jellier:
         value = reduce(lambda left, right: left * 10 + right, guts)
         if sign:
             value = -value
-        return ['decimal', value, exponent]
+        return [decimal_atom, value, exponent]
 
 
     def unpersistable(self, reason, sxp=None):
@@ -732,8 +746,8 @@ class _Unjellier:
 
     def _unjelly_boolean(self, exp):
         if BooleanType:
-            assert exp[0] in ('true', 'false')
-            return exp[0] == 'true'
+            assert exp[0] in (true_atom, false_atom)
+            return exp[0] == true_atom
         else:
             return Unpersistable("Could not unpersist boolean: %s" % (exp[0],))
 
