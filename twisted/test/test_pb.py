@@ -35,6 +35,8 @@ class Dummy(pb.Viewable):
             return 'goodbye, cruel world!'
 
 
+BRAINS = "BRAINS!"
+
 class DummyPerspective(pb.Avatar):
     """
     An L{IPerspective} avatar which will be used in some tests.
@@ -1126,7 +1128,7 @@ class TestRealm(object):
         and return an avatar appropriate for the given identifier.
         """
         assert interface == pb.IPerspective
-        assert mind == "BRAINS!"
+        assert mind == BRAINS
         if avatarId is checkers.ANONYMOUS:
             return pb.IPerspective, Echoer(), lambda: None
         else:
@@ -1385,11 +1387,11 @@ class NewCredTestCase(unittest.TestCase):
         creds = credentials.UsernamePassword("user", "pass")
 
         # NOTE: real code probably won't need anything where we have the
-        # "BRAINS!" argument, passing None is fine. We just do it here to
+        # BRAINS argument, passing None is fine. We just do it here to
         # test that it is being passed. It is used to give additional info to
         # the realm to aid perspective creation, if you don't need that,
         # ignore it.
-        mind = "BRAINS!"
+        mind = BRAINS
 
         d = factory.login(creds, mind)
         def cbLogin(perspective):
@@ -1431,7 +1433,7 @@ class NewCredTestCase(unittest.TestCase):
             checkers.InMemoryUsernamePasswordDatabaseDontUse(foo='bar'))
         factory = pb.PBClientFactory()
         d = factory.login(
-            credentials.UsernamePassword('foo', 'bar'), "BRAINS!")
+            credentials.UsernamePassword('foo', 'bar'), BRAINS)
         def cbLoggedIn(avatar):
             # Just wait for the logout to happen, as it should since the
             # reference to the avatar will shortly no longer exists.
@@ -1459,9 +1461,9 @@ class NewCredTestCase(unittest.TestCase):
         factory = pb.PBClientFactory()
 
         firstLogin = factory.login(
-            credentials.UsernamePassword('foo', 'bar'), "BRAINS!")
+            credentials.UsernamePassword('foo', 'bar'), BRAINS)
         secondLogin = factory.login(
-            credentials.UsernamePassword('baz', 'quux'), "BRAINS!")
+            credentials.UsernamePassword('baz', 'quux'), BRAINS)
         d = gatherResults([firstLogin, secondLogin])
         def cbLoggedIn(firstSecond):
             first, second = firstSecond
@@ -1518,7 +1520,7 @@ class NewCredTestCase(unittest.TestCase):
         """
         self.portal.registerChecker(checkers.AllowAnonymousAccess())
         factory = pb.PBClientFactory()
-        d = factory.login(credentials.Anonymous(), "BRAINS!")
+        d = factory.login(credentials.Anonymous(), BRAINS)
 
         def cbLoggedIn(perspective):
             return perspective.callRemote('echo', 123)
@@ -1541,7 +1543,7 @@ class NewCredTestCase(unittest.TestCase):
         self.portal.registerChecker(
             checkers.InMemoryUsernamePasswordDatabaseDontUse(user='pass'))
         factory = pb.PBClientFactory()
-        d = factory.login(credentials.Anonymous(), "BRAINS!")
+        d = factory.login(credentials.Anonymous(), BRAINS)
         self.assertFailure(d, UnhandledCredentials)
 
         def cleanup(ignore):
@@ -1564,7 +1566,7 @@ class NewCredTestCase(unittest.TestCase):
         self.portal.registerChecker(
             checkers.InMemoryUsernamePasswordDatabaseDontUse(user='pass'))
         factory = pb.PBClientFactory()
-        d = factory.login(credentials.Anonymous(), "BRAINS!")
+        d = factory.login(credentials.Anonymous(), BRAINS)
 
         def cbLogin(perspective):
             return perspective.callRemote('echo', 123)
@@ -1589,7 +1591,7 @@ class NewCredTestCase(unittest.TestCase):
             checkers.InMemoryUsernamePasswordDatabaseDontUse(user='pass'))
         factory = pb.PBClientFactory()
         d = factory.login(
-            credentials.UsernamePassword('user', 'pass'), "BRAINS!")
+            credentials.UsernamePassword('user', 'pass'), BRAINS)
 
         def cbLogin(perspective):
             return perspective.callRemote('add', 100, 23)
@@ -1613,7 +1615,7 @@ class NewCredTestCase(unittest.TestCase):
             checkers.InMemoryUsernamePasswordDatabaseDontUse(user='pass'))
         factory = pb.PBClientFactory()
         d = factory.login(
-            credentials.UsernamePassword("user", "pass"), "BRAINS!")
+            credentials.UsernamePassword("user", "pass"), BRAINS)
 
         def cbLogin(perspective):
             return perspective.callRemote("getViewPoint")
@@ -1676,7 +1678,7 @@ class NSPTestCase(unittest.TestCase):
         """
         factory = pb.PBClientFactory()
         d = factory.login(credentials.UsernamePassword('user', 'pass'),
-                          "BRAINS!")
+                          BRAINS)
         reactor.connectTCP('127.0.0.1', self.portno, factory)
         d.addCallback(lambda p: p.callRemote('ANYTHING', 'here', bar='baz'))
         d.addCallback(self.assertEqual,
