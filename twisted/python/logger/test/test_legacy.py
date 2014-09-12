@@ -377,6 +377,10 @@ class PublishToNewObserverTests(unittest.TestCase):
     def legacyEvent(self, *message, **kw):
         """
         Return a basic old-style event as would be created by L{legacyLog.msg}.
+
+        @param message: message as passed to L{legacyLog.msg}
+        @param kw: kw as passed to L{legacyLog.msg}
+        @return: an eventDict
         """
         event = (context.get(legacyLog.ILogContext) or {}).copy()
         event.update(kw)
