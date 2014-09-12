@@ -826,7 +826,8 @@ class FilePagerizer(pb.Referenceable):
         self.callback, self.args, self.kw = callback, args, kw
 
     def remote_getPages(self, collector):
-        self.pager = util.FilePager(collector, file(self.filename),
+        # TODO: file is never closed
+        self.pager = util.FilePager(collector, open(self.filename, 'rb'),
                                     self.callback, *self.args, **self.kw)
         self.args = self.kw = None
 
@@ -842,9 +843,8 @@ class PagingTestCase(unittest.TestCase):
         Create a file used to test L{util.FilePager}.
         """
         self.filename = self.mktemp()
-        fd = file(self.filename, 'w')
-        fd.write(bigString)
-        fd.close()
+        with open(self.filename, 'wb') as fd:
+            fd.write(bigString)
 
 
     def test_pagingWithCallback(self):
@@ -887,7 +887,7 @@ class PagingTestCase(unittest.TestCase):
         Test L{util.FilePager}, sending an empty file.
         """
         filenameEmpty = self.mktemp()
-        fd = file(filenameEmpty, 'w')
+        fd = open(filenameEmpty, 'wb')
         fd.close()
         c, s, pump = connectedServerAndClient()
         pagerizer = FilePagerizer(filenameEmpty, None)
