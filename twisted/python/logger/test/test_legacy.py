@@ -394,6 +394,17 @@ class PublishToNewObserverTests(unittest.TestCase):
         self.assertEquals(len(self.events), 1)
 
 
+    def test_time(self):
+        """
+        The C{"time"} key should get copied to C{"log_time"}.
+        """
+        publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
+
+        self.assertEquals(
+            self.events[0]["log_time"], self.events[0]["time"]
+        )
+
+
     def test_message(self):
         """
         An adapted old-style event should format as text in the same way as the

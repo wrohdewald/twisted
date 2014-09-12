@@ -218,6 +218,9 @@ def publishToNewObserver(observer, eventDict, textFromEventDict):
     @return: L{None}
     """
 
+    if "log_time" not in eventDict:
+        eventDict["log_time"] = eventDict["time"]
+
     if "log_format" not in eventDict:
         text = textFromEventDict(eventDict)
         if text is not None:
