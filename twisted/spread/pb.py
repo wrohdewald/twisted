@@ -80,7 +80,17 @@ MAX_BROKER_REFS = 1024
 
 portno = 8787
 
-
+local_atom = "local"
+unpersistable_atom = "unpersistable"
+version_atom = "version"
+answer_atom = "answer"
+error_atom = "error"
+decref_atom = "decref"
+decache_atom = "decache"
+uncache_atom = "uncache"
+root_atom = "root"
+didNotUnderstand_atom = "didNotUnderstand"
+message_atom = "message"
 
 class ProtocolError(Exception):
     """
@@ -322,9 +332,9 @@ class RemoteReference(Serializable, styles.Ephemeral):
         """
         if jellier.invoker:
             assert self.broker == jellier.invoker, "Can't send references to brokers other than their own."
-            return "local", self.luid
+            return local_atom, self.luid
         else:
-            return "unpersistable", "References cannot be serialized"
+            return unpersistable_atom, "References cannot be serialized"
 
     def unjellyFor(self, unjellier, unjellyList):
         self.__init__(unjellier.invoker.unserializingPerspective, unjellier.invoker, unjellyList[1], 1)
@@ -572,7 +582,7 @@ class Broker(banana.Banana):
             if method:
                 method(*sexp[1:])
             else:
-                self.sendCall("didNotUnderstand", command)
+                self.sendCall(didNotUnderstand_atom, command)
         else:
             raise ProtocolError("Non-list expression received.")
 
@@ -605,7 +615,7 @@ class Broker(banana.Banana):
     def connectionReady(self):
         """Initialize. Called after Banana negotiation is done.
         """
-        self.sendCall("version", self.version)
+        self.sendCall(version_atom, self.version)
         for notifier in self.connects:
             try:
                 notifier()
@@ -880,7 +890,7 @@ class Broker(banana.Banana):
             rval = None
         if isinstance(objectID, str):
             objectID = networkString(objectID)
-        self.sendCall(prefix+"message", requestID, objectID, networkString(message), answerRequired, netArgs, netKw)
+        self.sendCall(prefix+message_atom, requestID, objectID, networkString(message), answerRequired, netArgs, netKw)
         return rval
 
     def proto_message(self, requestID, objectID, message, answerRequired, netArgs, netKw):
@@ -936,7 +946,7 @@ class Broker(banana.Banana):
     def _sendAnswer(self, netResult, requestID):
         """(internal) Send an answer to a previously sent message.
         """
-        self.sendCall("answer", requestID, netResult)
+        self.sendCall(answer_atom, requestID, netResult)
 
     def proto_answer(self, requestID, netResult):
         """(internal) Got an answer to a previously sent message.
@@ -980,7 +990,7 @@ class Broker(banana.Banana):
                 fail = failure2Copyable(fail, self.factory.unsafeTracebacks)
         if isinstance(fail, CopyableFailure):
             fail.unsafeTracebacks = self.factory.unsafeTracebacks
-        self.sendCall("error", requestID, self.serialize(fail))
+        self.sendCall(error_atom, requestID, self.serialize(fail))
 
     def proto_error(self, requestID, fail):
         """(internal) Deal with an error.
@@ -996,7 +1006,7 @@ class Broker(banana.Banana):
     def sendDecRef(self, objectID):
         """(internal) Send a DECREF directive.
         """
-        self.sendCall("decref", objectID)
+        self.sendCall(decref_atom, objectID)
 
     def proto_decref(self, objectID):
         """(internal) Decrement the reference count of an object.
@@ -1018,7 +1028,7 @@ class Broker(banana.Banana):
     def decCacheRef(self, objectID):
         """(internal) Send a DECACHE directive.
         """
-        self.sendCall("decache", objectID)
+        self.sendCall(decache_atom, objectID)
 
     def proto_decache(self, objectID):
         """(internal) Decrement the reference count of a cached object.
@@ -1041,7 +1051,7 @@ class Broker(banana.Banana):
             puid = cacheable.processUniqueID()
             del self.remotelyCachedLUIDs[puid]
             del self.remotelyCachedObjects[objectID]
-            self.sendCall("uncache", objectID)
+            self.sendCall(uncache_atom, objectID)
 
     def proto_uncache(self, objectID):
         """(internal) Tell the client it is now OK to uncache an object.
@@ -1141,7 +1151,7 @@ class PBClientFactory(protocol.ClientFactory):
 
     def clientConnectionMade(self, broker):
         self._broker = broker
-        self._root = broker.remoteForName("root")
+        self._root = broker.remoteForName(root_atom)
         ds = self.rootObjectRequests
         self.rootObjectRequests = []
         for d in ds:
