@@ -379,7 +379,7 @@ class PBFailureTest(PBConnTestCase):
         def generatorFunc():
             try:
                 yield None
-            except pb.RemoteError, exc:
+            except pb.RemoteError as exc:
                 exception.append(exc)
             else:
                 self.fail("RemoteError not raised")
