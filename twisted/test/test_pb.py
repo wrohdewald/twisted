@@ -1457,15 +1457,16 @@ class NewCredTestCase(unittest.TestCase):
         Two different correct login attempts can be made on the same root
         object at the same time and produce two different resulting avatars.
         """
+        PASSWORD = u'\u00dcnixi\u00f6de'.encode('utf-8')
         self.portal.registerChecker(
             checkers.InMemoryUsernamePasswordDatabaseDontUse(
-                foo='bar', baz='quux'))
+                foo='bar', baz=PASSWORD))
         factory = pb.PBClientFactory()
 
         firstLogin = factory.login(
             credentials.UsernamePassword('foo', 'bar'), BRAINS)
         secondLogin = factory.login(
-            credentials.UsernamePassword('baz', 'quux'), BRAINS)
+            credentials.UsernamePassword('baz', PASSWORD), BRAINS)
         d = gatherResults([firstLogin, secondLogin])
         def cbLoggedIn(firstSecond):
             first, second = firstSecond
