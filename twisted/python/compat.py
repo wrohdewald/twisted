@@ -431,7 +431,7 @@ if _PY3:
 
     def networkString(s):
         if not isinstance(s, unicode):
-            raise TypeError("Can only convert text to bytes on Python 3")
+            raise TypeError("Can only convert text to bytes on Python 3, I got %r" % (s,))
         return s.encode('ascii')
 
     def networkChar(ordinal):
