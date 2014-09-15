@@ -284,6 +284,10 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
         @return: the event as observed by the legacy wrapper
         """
+        # Make sure keys that are expected by the logging system are present
+        event.setdefault("log_time", time())
+        event.setdefault("log_system", "-")
+
         # Send a copy: don't mutate me, bro
         observed = self.observe(dict(event))
 
