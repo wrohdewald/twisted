@@ -79,17 +79,17 @@ MAX_BROKER_REFS = 1024
 
 portno = 8787
 
-local_atom = "local"
-unpersistable_atom = "unpersistable"
-version_atom = "version"
-answer_atom = "answer"
-error_atom = "error"
-decref_atom = "decref"
-decache_atom = "decache"
-uncache_atom = "uncache"
-root_atom = "root"
-didNotUnderstand_atom = "didNotUnderstand"
-message_atom = "message"
+local_atom = b"local"
+unpersistable_atom = b"unpersistable"
+version_atom = b"version"
+answer_atom = b"answer"
+error_atom = b"error"
+decref_atom = b"decref"
+decache_atom = b"decache"
+uncache_atom = b"uncache"
+root_atom = b"root"
+didNotUnderstand_atom = b"didNotUnderstand"
+message_atom = b"message"
 
 class ProtocolError(Exception):
     """
