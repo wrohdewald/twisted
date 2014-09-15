@@ -658,6 +658,69 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
         self.assertIn("UserWarning: hello!", output)
 
 
+    def test_emitPrefix(self):
+        """
+        FileLogObserver.emit() will add a timestamp and system prefix to its
+        file output.
+        """
+        output = StringIO()
+        flo = log.FileLogObserver(output)
+        events = []
+
+        def observer(event):
+            # Capture the event for reference and pass it along to flo
+            events.append(event)
+            flo.emit(event)
+
+        publisher = log.LogPublisher()
+        publisher.addObserver(observer)
+
+        publisher.msg("Hello!")
+        self.assertEqual(len(events), 1)
+        event = events[0]
+
+        result = output.getvalue()
+        prefix = "{time} [{system}] ".format(
+            time=flo.formatTime(event["time"]), system=event["system"],
+        )
+
+        self.assertTrue(
+            result.startswith(prefix),
+            "{!r} does not start with {!r}".format(result, prefix)
+        )
+
+
+    def test_emitNewline(self):
+        """
+        FileLogObserver.emit() will append a newline to its file output.
+        """
+        output = StringIO()
+        flo = log.FileLogObserver(output)
+        events = []
+
+        def observer(event):
+            # Capture the event for reference and pass it along to flo
+            events.append(event)
+            flo.emit(event)
+
+        publisher = log.LogPublisher()
+        publisher.addObserver(observer)
+
+        publisher.msg("Hello!")
+        self.assertEqual(len(events), 1)
+        event = events[0]
+
+        result = output.getvalue()
+        prefix = "{time} [{system}] ".format(
+            time=flo.formatTime(event["time"]), system=event["system"],
+        )
+
+        self.assertTrue(
+            result.startswith(prefix),
+            "{!r} does not start with {!r}".format(result, prefix)
+        )
+
+
 
 class PythonLoggingObserverTestCase(unittest.SynchronousTestCase):
     """
