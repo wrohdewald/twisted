@@ -234,6 +234,45 @@ class JellyTestCase(unittest.TestCase):
         self.assertNotIdentical(input, output)
 
 
+    def test_time(self):
+        """
+        Jellying L{datetime.time} instances and then unjellying the result
+        should produce objects which represent the values of the original
+        inputs.
+        """
+        time = datetime.time(13, 5, 59, 99998)
+        c = jelly.jelly(time)
+        output = jelly.unjelly(c)
+        self.assertEqual(time, output)
+        self.assertNotIdentical(time, output)
+
+
+    def test_date(self):
+        """
+        Jellying L{datetime.date} instances and then unjellying the result
+        should produce objects which represent the values of the original
+        inputs.
+        """
+        date = datetime.date(2014, 12, 31)
+        c = jelly.jelly(date)
+        output = jelly.unjelly(c)
+        self.assertEqual(date, output)
+        self.assertNotIdentical(date, output)
+
+
+    def test_timedelta(self):
+        """
+        Jellying L{datetime.timedelta} instances and then unjellying the result
+        should produce objects which represent the values of the original
+        inputs.
+        """
+        timedelta = datetime.timedelta(days=5, seconds=4, microseconds=3)
+        c = jelly.jelly(timedelta)
+        output = jelly.unjelly(c)
+        self.assertEqual(timedelta, output)
+        self.assertNotIdentical(timedelta, output)
+
+
     def test_decimal(self):
         """
         Jellying L{decimal.Decimal} instances and then unjellying the result
