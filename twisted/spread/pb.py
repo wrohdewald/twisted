@@ -910,7 +910,7 @@ class Broker(banana.Banana):
         try:
             object = findObjMethod(objectID)
             if object is None:
-                raise Error("Invalid Object ID")
+                raise Error("Invalid Object ID %r" % (objectID,))
             netResult = object.remoteMessageReceived(self, message, netArgs, netKw)
         except Error as e:
             if answerRequired:
