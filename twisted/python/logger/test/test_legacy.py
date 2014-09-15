@@ -76,18 +76,15 @@ class LegacyLoggerTests(unittest.TestCase):
 
         log.msg(message, **kwargs)
 
-        self.assertIs(log.newStyleLogger.emitted["level"],
-                             LogLevel.info)
+        self.assertIs(log.newStyleLogger.emitted["level"], LogLevel.info)
         self.assertEqual(log.newStyleLogger.emitted["format"], message)
 
         for key, value in kwargs.items():
-            self.assertIs(log.newStyleLogger.emitted["kwargs"][key],
-                                 value)
+            self.assertIs(log.newStyleLogger.emitted["kwargs"][key], value)
 
         log.msg(foo="")
 
-        self.assertIs(log.newStyleLogger.emitted["level"],
-                             LogLevel.info)
+        self.assertIs(log.newStyleLogger.emitted["level"], LogLevel.info)
         self.assertIs(log.newStyleLogger.emitted["format"], None)
 
 
@@ -168,16 +165,10 @@ class LegacyLoggerTests(unittest.TestCase):
             LogLevel.critical
         )
         self.assertEqual(log.newStyleLogger.emitted["format"], repr(bogus))
-        self.assertIs(
-            log.newStyleLogger.emitted["kwargs"]["why"],
-            why
-        )
+        self.assertIs(log.newStyleLogger.emitted["kwargs"]["why"], why)
 
         for key, value in kwargs.items():
-            self.assertIs(
-                log.newStyleLogger.emitted["kwargs"][key],
-                value
-            )
+            self.assertIs(log.newStyleLogger.emitted["kwargs"][key], value)
 
 
     def legacy_err(self, log, kwargs, why, exception):
