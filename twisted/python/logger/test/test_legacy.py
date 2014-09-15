@@ -62,7 +62,7 @@ class LegacyLoggerTests(unittest.TestCase):
         self.assertIn("API-compatible", log.err.__doc__)
 
         # Passed through
-        self.assertIdentical(log.addObserver, legacyLog.addObserver)
+        self.assertIs(log.addObserver, legacyLog.addObserver)
 
 
     def test_legacy_msg(self):
@@ -76,19 +76,19 @@ class LegacyLoggerTests(unittest.TestCase):
 
         log.msg(message, **kwargs)
 
-        self.assertIdentical(log.newStyleLogger.emitted["level"],
+        self.assertIs(log.newStyleLogger.emitted["level"],
                              LogLevel.info)
         self.assertEquals(log.newStyleLogger.emitted["format"], message)
 
         for key, value in kwargs.items():
-            self.assertIdentical(log.newStyleLogger.emitted["kwargs"][key],
+            self.assertIs(log.newStyleLogger.emitted["kwargs"][key],
                                  value)
 
         log.msg(foo="")
 
-        self.assertIdentical(log.newStyleLogger.emitted["level"],
+        self.assertIs(log.newStyleLogger.emitted["level"],
                              LogLevel.info)
-        self.assertIdentical(log.newStyleLogger.emitted["format"], None)
+        self.assertIs(log.newStyleLogger.emitted["format"], None)
 
 
     def test_legacy_err_implicit(self):
@@ -163,18 +163,18 @@ class LegacyLoggerTests(unittest.TestCase):
         errors = self.flushLoggedErrors(exception.__class__)
         self.assertEquals(len(errors), 0)
 
-        self.assertIdentical(
+        self.assertIs(
             log.newStyleLogger.emitted["level"],
             LogLevel.critical
         )
         self.assertEquals(log.newStyleLogger.emitted["format"], repr(bogus))
-        self.assertIdentical(
+        self.assertIs(
             log.newStyleLogger.emitted["kwargs"]["why"],
             why
         )
 
         for key, value in kwargs.items():
-            self.assertIdentical(
+            self.assertIs(
                 log.newStyleLogger.emitted["kwargs"][key],
                 value
             )
@@ -199,7 +199,7 @@ class LegacyLoggerTests(unittest.TestCase):
         errors = self.flushLoggedErrors(exception.__class__)
         self.assertEquals(len(errors), 1)
 
-        self.assertIdentical(
+        self.assertIs(
             log.newStyleLogger.emitted["level"],
             LogLevel.critical
         )
@@ -216,12 +216,12 @@ class LegacyLoggerTests(unittest.TestCase):
         )
 
         emittedKwargs = log.newStyleLogger.emitted["kwargs"]
-        self.assertIdentical(emittedKwargs["failure"].__class__, Failure)
-        self.assertIdentical(emittedKwargs["failure"].value, exception)
-        self.assertIdentical(emittedKwargs["why"], why)
+        self.assertIs(emittedKwargs["failure"].__class__, Failure)
+        self.assertIs(emittedKwargs["failure"].value, exception)
+        self.assertIs(emittedKwargs["why"], why)
 
         for key, value in kwargs.items():
-            self.assertIdentical(
+            self.assertIs(
                 log.newStyleLogger.emitted["kwargs"][key],
                 value
             )
@@ -358,7 +358,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
             log_failure=failure,
             log_format=why,
         ))
-        self.assertIdentical(event["failure"], failure)
+        self.assertIs(event["failure"], failure)
         self.assertTrue(event["isError"])
         self.assertEquals(event["why"], why)
 
