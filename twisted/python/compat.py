@@ -340,28 +340,34 @@ def ioType(fileIshObject, default=unicode):
 
 
 
-def nativeString(s):
+def nativeString(s, encoding='ascii'):
     """
-    Convert C{bytes} or C{unicode} to the native C{str} type, using ASCII
+    Convert C{bytes} or C{unicode} to the native C{str} type, using the given
     encoding if conversion is necessary.
 
-    @raise UnicodeError: The input string is not ASCII encodable/decodable.
+    @param s: A string from the network to convert to C{str} if necessary.
+    @param encoding: The encoding for the given string: 'ascii' or 'utf-8'.
+
+    @raise UnicodeError: The input string is not encodable/decodable.
     @raise TypeError: The input is neither C{bytes} nor C{unicode}.
+    @raise TypeError: Encoding is neither 'ascii' nor 'utf-8'.
     """
     if not isinstance(s, (bytes, unicode)):
         raise TypeError("%r is neither bytes nor unicode" % s)
+    if encoding not in ('ascii', 'utf-8'):
+        raise TypeError('nativeString only accepts encodings ascii and utf-8')
     if _PY3:
         if isinstance(s, bytes):
-            return s.decode("ascii")
+            return s.decode(encoding)
         else:
-            # Ensure we're limited to ASCII subset:
-            s.encode("ascii")
+            # Ensure we're limited to the given encoding subset:
+            s.encode(encoding)
     else:
         if isinstance(s, unicode):
-            return s.encode("ascii")
+            return s.encode(encoding)
         else:
-            # Ensure we're limited to ASCII subset:
-            s.decode("ascii")
+            # Ensure we're limited to the given encoding subset:
+            s.decode(encoding)
     return s
 
 
@@ -429,10 +435,13 @@ if _PY3:
             return object[offset:(offset + size)]
 
 
-    def networkString(s):
+    def networkString(s, encoding='ascii'):
         if not isinstance(s, unicode):
             raise TypeError("Can only convert text to bytes on Python 3, I got %r" % (s,))
-        return s.encode('ascii')
+        if encoding not in ('ascii', 'utf-8'):
+            raise TypeError('networkString only accepts encodings ascii and utf-8')
+        return s.encode(encoding)
+
 
     def networkChar(ordinal):
         return bytes([ordinal])
@@ -448,12 +457,15 @@ else:
 
     lazyByteSlice = buffer
 
-    def networkString(s):
+    def networkString(s, encoding='ascii'):
         if not isinstance(s, str):
             raise TypeError("Can only pass-through bytes on Python 2")
-        # Ensure we're limited to ASCII subset:
-        s.decode('ascii')
+        if encoding not in ('ascii', 'utf-8'):
+            raise TypeError('networkString only accepts encodings ascii and utf-8')
+        # Ensure we're limited to wanted encoding subset:
+        s.decode(encoding)
         return s
+
 
     def networkChar(ordinal):
         if isinstance(ordinal, str):
@@ -487,7 +499,7 @@ integer.
 
 networkString.__doc__ = """
 Convert the native string type to C{bytes} if it is not already C{bytes} using
-ASCII encoding if conversion is necessary.
+the given encoding if conversion is necessary.
 
 This is useful for sending text-like bytes that are constructed using string
 interpolation.  For example, this is safe on Python 2 and Python 3:
@@ -495,10 +507,12 @@ interpolation.  For example, this is safe on Python 2 and Python 3:
     networkString("Hello %d" % (n,))
 
 @param s: A native string to convert to bytes if necessary.
+@param encoding: The encoding for the given string: 'ascii' or 'utf-8'.
 @type s: C{str}
 
-@raise UnicodeError: The input string is not ASCII encodable/decodable.
+@raise UnicodeError: The input string is not encodable/decodable.
 @raise TypeError: The input is neither C{bytes} nor C{unicode}.
+@raise TypeError: Encoding is neither 'ascii' nor 'utf-8'.
 
 @rtype: C{bytes}
 """

@@ -498,14 +498,14 @@ class StringTests(unittest.SynchronousTestCase):
     Compatibility functions and types for strings.
     """
 
-    def assertNativeString(self, original, expected):
+    def assertNativeString(self, original, expected, encoding='ascii'):
         """
         Raise an exception indicating a failed test if the output of
         C{nativeString(original)} is unequal to the expected string, or is not
         a native string.
         """
-        self.assertEqual(nativeString(original), expected)
-        self.assertIsInstance(nativeString(original), str)
+        self.assertEqual(nativeString(original, encoding), expected)
+        self.assertIsInstance(nativeString(original, encoding), str)
 
 
     def test_nonASCIIBytesToString(self):
@@ -538,6 +538,36 @@ class StringTests(unittest.SynchronousTestCase):
         an ASCII encoding if applicable.
         """
         self.assertNativeString(u"Good day", "Good day")
+
+
+    def test_unicode8ToString_2(self):
+        """
+        C{nativeString} accepts non-ascii unicode if given encoding='utf-8'.
+        """
+        snowman = u"\N{SNOWMAN}"
+        self.assertNativeString(snowman, snowman.encode('utf-8'), encoding='utf-8')
+
+
+    def test_unicode8ToString_3(self):
+        """
+        C{nativeString} accepts non-ascii unicode if given encoding='utf-8'.
+        """
+        snowman = u"\N{SNOWMAN}"
+        self.assertNativeString(snowman, snowman, encoding='utf-8')
+
+
+    if _PY3:
+        test_unicode8ToString_2.skip = "Python 3 only"
+    else:
+        test_unicode8ToString_3.skip = "Python 2 only"
+
+
+    def test_wrongEncodingForNativeString(self):
+        """
+        nativeString only accepts ascii and utf-8.i
+        Otherwise it raises TypeError.
+        """
+        self.assertRaises(TypeError, nativeString, '', encoding='latin-1')
 
 
     def test_stringToString(self):
@@ -609,6 +639,9 @@ class NetworkStringTests(unittest.SynchronousTestCase):
     """
     Tests for L{networkString}.
     """
+
+    snowman = u"\N{SNOWMAN}"
+
     def test_bytes(self):
         """
         L{networkString} returns a C{bytes} object passed to it unmodified.
@@ -622,10 +655,32 @@ class NetworkStringTests(unittest.SynchronousTestCase):
         containing bytes not used by ASCII.
         """
         self.assertRaises(
-            UnicodeError, networkString, u"\N{SNOWMAN}".encode('utf-8'))
+            UnicodeError, networkString, self.snowman.encode('utf-8'))
+
+
+    def test_bytes8(self):
+        """
+        L{networkString} with encoding='utf-8' accepts a
+        C{bytes} instance containing bytes encodable as utf-8.
+        """
+        snowman = self.snowman.encode('utf-8')
+        self.assertEqual(networkString(snowman, encoding='utf-8'), snowman)
+
+
+    def test_bytes8OutOfRange(self):
+        """
+        L{networkString} with invalid utf-8 C{bytes} instance
+        raises UnicodeDecodeError
+        """
+        invalid = '\xff'
+        self.assertRaises(UnicodeDecodeError,
+            networkString, invalid, encoding='utf-8')
+
+
     if _PY3:
         test_bytes.skip = test_bytesOutOfRange.skip = (
             "Bytes behavior of networkString only provided on Python 2.")
+        test_bytes8.skip = test_bytes8OutOfRange = test_bytes.skip
 
 
     def test_unicode(self):
@@ -641,11 +696,29 @@ class NetworkStringTests(unittest.SynchronousTestCase):
         L{networkString} raises L{UnicodeError} if passed a C{unicode} instance
         containing characters not encodable in ASCII.
         """
-        self.assertRaises(
-            UnicodeError, networkString, u"\N{SNOWMAN}")
+        self.assertRaises(UnicodeError, networkString, self.snowman)
+
+
+    def test_unicode8(self):
+        """
+        L{networkString} with encoding='utf-8' accepts C{unicode} objects
+        with non-ascii characters.
+        """
+        self.assertEqual(
+            networkString(self.snowman, encoding='utf-8'),
+            self.snowman.encode('utf-8'))
+
+    def test_wrongEncoding(self):
+        """
+        networkString only accepts ascii and utf-8.i
+        Otherwise it raises TypeError.
+        """
+        self.assertRaises(TypeError, networkString, '', encoding='latin-1')
+
     if not _PY3:
         test_unicode.skip = test_unicodeOutOfRange.skip = (
             "Unicode behavior of networkString only provided on Python 3.")
+        test_unicode8.skip = test_unicode.skip
 
 
     def test_nonString(self):
@@ -790,7 +863,6 @@ class networkCharTests(unittest.SynchronousTestCase):
         When L{networkChar} is called with an int, it returns bytes with
         length 1.
         """
-        self.assertEqual(networkChar(self.ordinalB), chr(self.ordinalB))
         self.assertEqual(networkChar(self.ordinalB), b'B')
 
 
