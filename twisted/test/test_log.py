@@ -502,7 +502,7 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
     def test_brokenSystem__str__(self):
         self.lp.msg('huh', system=EvilStr())
         self.assertEqual(len(self.out), 1)
-        self.assertIn(self.ERROR_UNFORMATTABLE_SYSTEM, self.out[0])
+        self.assertIn(self.ERROR_FORMAT, self.out[0])
 
 
     def test_formattingAnObjectWithBroken__repr__Indirect(self):
@@ -514,7 +514,7 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
     def test_systemWithBroker__repr__Indirect(self):
         self.lp.msg('huh', system=[EvilRepr()])
         self.assertEqual(len(self.out), 1)
-        self.assertIn(self.ERROR_UNFORMATTABLE_SYSTEM, self.out[0])
+        self.assertIn(self.ERROR_UNFORMATTABLE_OBJECT, self.out[0])
 
 
     def test_simpleBrokenFormat(self):
