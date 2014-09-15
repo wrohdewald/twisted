@@ -41,7 +41,7 @@ def savedJSONInvariants(testCase, savedJSON):
     @raise AssertionError: If any of the preconditions fail.
     """
     testCase.assertIsInstance(savedJSON, unicode)
-    testCase.assertEquals(savedJSON.count("\n"), 0)
+    testCase.assertEqual(savedJSON.count("\n"), 0)
     return savedJSON
 
 
@@ -68,7 +68,7 @@ class SaveLoadTests(TestCase):
         """
         Saving and loading an empty dictionary results in an empty dictionary.
         """
-        self.assertEquals(eventFromJSON(self.savedEventJSON({})), {})
+        self.assertEqual(eventFromJSON(self.savedEventJSON({})), {})
 
 
     def test_saveLoad(self):
@@ -78,7 +78,7 @@ class SaveLoadTests(TestCase):
         though, all dictionary keys must be L{unicode} and any non-L{unicode}
         keys will be converted.
         """
-        self.assertEquals(
+        self.assertEqual(
             eventFromJSON(self.savedEventJSON({1: 2, u"3": u"4"})),
             {u"1": 2, u"3": u"4"}
         )
@@ -89,7 +89,7 @@ class SaveLoadTests(TestCase):
         Saving and loading an object which cannot be represented in JSON will
         result in a placeholder.
         """
-        self.assertEquals(
+        self.assertEqual(
             eventFromJSON(self.savedEventJSON({u"1": 2, u"3": object()})),
             {u"1": 2, u"3": {u"unpersistable": True}}
         )
@@ -99,7 +99,7 @@ class SaveLoadTests(TestCase):
         """
         Non-ASCII keys and values can be saved and loaded.
         """
-        self.assertEquals(
+        self.assertEqual(
             eventFromJSON(self.savedEventJSON(
                 {u"\u1234": u"\u4321", u"3": object()}
             )),
@@ -124,7 +124,7 @@ class SaveLoadTests(TestCase):
             # much we can do about that.  Let's make sure that we don't get an
             # error, though.
             inputEvent.update({b"skipped": "okay"})
-        self.assertEquals(
+        self.assertEqual(
             eventFromJSON(self.savedEventJSON(inputEvent)),
             {u"hello": asbytes(range(255)).decode("charmap")}
         )
@@ -149,7 +149,7 @@ class SaveLoadTests(TestCase):
             "object": Reprable(7)
         }
         outputEvent = eventFromJSON(self.savedEventJSON(inputEvent))
-        self.assertEquals(formatEvent(outputEvent), "reprable 7")
+        self.assertEqual(formatEvent(outputEvent), "reprable 7")
 
 
     def test_extractingFieldsPostLoad(self):
@@ -163,7 +163,7 @@ class SaveLoadTests(TestCase):
 
         inputEvent = dict(log_format="{object.value}", object=Obj())
         loadedEvent = eventFromJSON(self.savedEventJSON(inputEvent))
-        self.assertEquals(extractField("object.value", loadedEvent), 345)
+        self.assertEqual(extractField("object.value", loadedEvent), 345)
 
         # The behavior of extractField is consistent between pre-persistence
         # and post-persistence events, although looking up the key directly
@@ -188,7 +188,7 @@ class SaveLoadTests(TestCase):
         if sys.exc_info()[0] is not None:
             # Make sure we don't get the same Failure by accident.
             sys.exc_clear()
-        self.assertEquals(len(events), 1)
+        self.assertEqual(len(events), 1)
         loaded = eventFromJSON(self.savedEventJSON(events[0]))['log_failure']
         self.assertIsInstance(loaded, Failure)
         self.assertTrue(loaded.check(ZeroDivisionError))
@@ -214,7 +214,7 @@ class SaveLoadTests(TestCase):
             '{"log_level": {"name": "other", '
             '"__class_uuid__": "02E59486-F24D-46AD-8224-3ACDF2A5732A"}}'
         )
-        self.assertEquals(loadedEvent, dict(log_level=None))
+        self.assertEqual(loadedEvent, dict(log_level=None))
 
 
 
@@ -248,7 +248,7 @@ class FileLogObserverTests(TestCase):
             observer = jsonFileLogObserver(fileHandle)
             event = dict(x=1)
             observer(event)
-            self.assertEquals(fileHandle.getvalue(), u'{"x": 1}\n')
+            self.assertEqual(fileHandle.getvalue(), u'{"x": 1}\n')
 
         finally:
             fileHandle.close()
@@ -263,7 +263,7 @@ class FileLogObserverTests(TestCase):
             events = eventsFromJSONLogFile(fileHandle)
 
             nextEvent = next(events)
-            self.assertEquals(nextEvent, {u"x": 1})
+            self.assertEqual(nextEvent, {u"x": 1})
 
         finally:
             fileHandle.close()

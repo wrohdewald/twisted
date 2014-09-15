@@ -47,7 +47,7 @@ class LegacyLoggerTests(unittest.TestCase):
         Default namespace is module name.
         """
         log = TestLegacyLogger(logger=None)
-        self.assertEquals(log.newStyleLogger.namespace, __name__)
+        self.assertEqual(log.newStyleLogger.namespace, __name__)
 
 
     def test_passThroughAttributes(self):
@@ -78,7 +78,7 @@ class LegacyLoggerTests(unittest.TestCase):
 
         self.assertIs(log.newStyleLogger.emitted["level"],
                              LogLevel.info)
-        self.assertEquals(log.newStyleLogger.emitted["format"], message)
+        self.assertEqual(log.newStyleLogger.emitted["format"], message)
 
         for key, value in kwargs.items():
             self.assertIs(log.newStyleLogger.emitted["kwargs"][key],
@@ -161,13 +161,13 @@ class LegacyLoggerTests(unittest.TestCase):
             log.err(bogus, why, **kwargs)
 
         errors = self.flushLoggedErrors(exception.__class__)
-        self.assertEquals(len(errors), 0)
+        self.assertEqual(len(errors), 0)
 
         self.assertIs(
             log.newStyleLogger.emitted["level"],
             LogLevel.critical
         )
-        self.assertEquals(log.newStyleLogger.emitted["format"], repr(bogus))
+        self.assertEqual(log.newStyleLogger.emitted["format"], repr(bogus))
         self.assertIs(
             log.newStyleLogger.emitted["kwargs"]["why"],
             why
@@ -197,7 +197,7 @@ class LegacyLoggerTests(unittest.TestCase):
         @type exception: L{Exception}
         """
         errors = self.flushLoggedErrors(exception.__class__)
-        self.assertEquals(len(errors), 1)
+        self.assertEqual(len(errors), 1)
 
         self.assertIs(
             log.newStyleLogger.emitted["level"],
@@ -258,7 +258,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
 
         observer = LegacyLogObserverWrapper(LegacyObserver())
 
-        self.assertEquals(
+        self.assertEqual(
             repr(observer),
             "LegacyLogObserverWrapper(<Legacy Observer>)"
         )
@@ -278,7 +278,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         legacyObserver = lambda e: events.append(e)
         observer = LegacyLogObserverWrapper(legacyObserver)
         observer(event)
-        self.assertEquals(len(events), 1)
+        self.assertEqual(len(events), 1)
 
         return events[0]
 
@@ -299,7 +299,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         # Don't expect modifications
         for key, value in event.items():
             self.assertIn(key, observed)
-            self.assertEquals(observed[key], value)
+            self.assertEqual(observed[key], value)
 
         return observed
 
@@ -316,7 +316,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         Translate: C{"log_system"} -> C{"system"}
         """
         event = self.forwardAndVerify(dict(log_system="foo"))
-        self.assertEquals(event["system"], "foo")
+        self.assertEqual(event["system"], "foo")
 
 
     def test_pythonLogLevel(self):
@@ -324,7 +324,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         Python log level is added.
         """
         event = self.forwardAndVerify(dict(log_level=LogLevel.info))
-        self.assertEquals(event["logLevel"], py_logging.INFO)
+        self.assertEqual(event["logLevel"], py_logging.INFO)
 
 
     def test_message(self):
@@ -332,7 +332,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         C{"message"} key is added.
         """
         event = self.forwardAndVerify(dict())
-        self.assertEquals(event["message"], ())
+        self.assertEqual(event["message"], ())
 
 
     def test_format(self):
@@ -342,7 +342,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         event = self.forwardAndVerify(
             dict(log_format="Hello, {who}!", who="world")
         )
-        self.assertEquals(
+        self.assertEqual(
             legacyLog.textFromEventDict(event),
             b"Hello, world!"
         )
@@ -360,7 +360,7 @@ class LegacyLogObserverWrapperTests(unittest.TestCase):
         ))
         self.assertIs(event["failure"], failure)
         self.assertTrue(event["isError"])
-        self.assertEquals(event["why"], why)
+        self.assertEqual(event["why"], why)
 
 
 
@@ -395,7 +395,7 @@ class PublishToNewObserverTests(unittest.TestCase):
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
-        self.assertEquals(len(self.events), 1)
+        self.assertEqual(len(self.events), 1)
 
 
     def test_time(self):
@@ -404,7 +404,7 @@ class PublishToNewObserverTests(unittest.TestCase):
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
-        self.assertEquals(
+        self.assertEqual(
             self.events[0]["log_time"], self.events[0]["time"]
         )
 
@@ -422,7 +422,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
         publishToNewObserver(self.observer, event, textFromEventDict)
 
-        self.assertEquals(formatEvent(self.events[0]), text)
+        self.assertEqual(formatEvent(self.events[0]), text)
 
 
     def test_defaultLogLevel(self):
@@ -431,7 +431,7 @@ class PublishToNewObserverTests(unittest.TestCase):
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
-        self.assertEquals(self.events[0]["log_level"], LogLevel.info)
+        self.assertEqual(self.events[0]["log_level"], LogLevel.info)
 
 
     def test_isError(self):
@@ -443,7 +443,7 @@ class PublishToNewObserverTests(unittest.TestCase):
             self.observer, self.legacyEvent(isError=1), lambda e: u""
         )
 
-        self.assertEquals(self.events[0]["log_level"], LogLevel.critical)
+        self.assertEqual(self.events[0]["log_level"], LogLevel.critical)
 
 
     def test_stdlibLogLevel(self):
@@ -458,7 +458,7 @@ class PublishToNewObserverTests(unittest.TestCase):
             lambda e: u""
         )
 
-        self.assertEquals(self.events[0]["log_level"], LogLevel.warn)
+        self.assertEqual(self.events[0]["log_level"], LogLevel.warn)
 
 
     def test_defaultNamespace(self):
@@ -467,7 +467,7 @@ class PublishToNewObserverTests(unittest.TestCase):
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
-        self.assertEquals(self.events[0]["log_namespace"], "log_legacy")
+        self.assertEqual(self.events[0]["log_namespace"], "log_legacy")
 
 
     def test_system(self):
@@ -476,6 +476,6 @@ class PublishToNewObserverTests(unittest.TestCase):
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
-        self.assertEquals(
+        self.assertEqual(
             self.events[0]["log_system"], self.events[0]["system"]
         )
