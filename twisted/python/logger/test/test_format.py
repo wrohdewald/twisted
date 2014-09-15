@@ -236,7 +236,7 @@ class TimeFormattingTests(unittest.TestCase):
         self.assertEqual(formatTime(t, timeFormat="%Y/%W"), u"2013/38")
 
 
-    def test_formatTime_f(self):
+    def test_formatTimeSupportsPercentF(self):
         """
         "%f" supported in time format.
         """

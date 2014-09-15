@@ -42,7 +42,7 @@ class LegacyLoggerTests(unittest.TestCase):
     Tests for L{LegacyLogger}.
     """
 
-    def test_namespace_default(self):
+    def test_namespaceDefault(self):
         """
         Default namespace is module name.
         """
@@ -65,7 +65,7 @@ class LegacyLoggerTests(unittest.TestCase):
         self.assertIs(log.addObserver, legacyLog.addObserver)
 
 
-    def test_legacy_msg(self):
+    def test_legacyMsg(self):
         """
         Test LegacyLogger's log.msg()
         """
@@ -91,7 +91,7 @@ class LegacyLoggerTests(unittest.TestCase):
         self.assertIs(log.newStyleLogger.emitted["format"], None)
 
 
-    def test_legacy_err_implicit(self):
+    def test_legacyErrImplicit(self):
         """
         Test LegacyLogger's log.err() capturing the in-flight exception.
         """
@@ -108,7 +108,7 @@ class LegacyLoggerTests(unittest.TestCase):
         self.legacy_err(log, kwargs, None, exception)
 
 
-    def test_legacy_err_exception(self):
+    def test_legacyErrException(self):
         """
         Test LegacyLogger's log.err() with a given exception.
         """
@@ -126,7 +126,7 @@ class LegacyLoggerTests(unittest.TestCase):
         self.legacy_err(log, kwargs, why, exception)
 
 
-    def test_legacy_err_failure(self):
+    def test_legacyErrFailure(self):
         """
         Test LegacyLogger's log.err() with a given L{Failure}.
         """
@@ -144,7 +144,7 @@ class LegacyLoggerTests(unittest.TestCase):
         self.legacy_err(log, kwargs, why, exception)
 
 
-    def test_legacy_err_bogus(self):
+    def test_legacyErrBogus(self):
         """
         Test LegacyLogger's log.err() with a bogus argument.
         """

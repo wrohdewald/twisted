@@ -148,7 +148,7 @@ class STDLibLogObserverTests(unittest.TestCase):
         #self.assertEqual(records[0].func, "test_callerInfo")
 
 
-    def test_basic_format(self):
+    def test_basicFormat(self):
         """
         Basic formattable event passes the format along correctly.
         """
@@ -160,7 +160,7 @@ class STDLibLogObserverTests(unittest.TestCase):
         self.assertEqual(records[0].args, ())
 
 
-    def test_basic_formatRendered(self):
+    def test_basicFormatRendered(self):
         """
         Basic formattable event renders correctly.
         """

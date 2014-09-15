@@ -72,7 +72,7 @@ class FlatFormattingTests(unittest.TestCase):
         )
 
 
-    def test_formatFlatEvent_badFormat(self):
+    def test_formatFlatEventBadFormat(self):
         """
         If the format string is invalid, an error is produced.
         """
@@ -177,7 +177,7 @@ class FlatFormattingTests(unittest.TestCase):
         self.assertEqual(sameFlattener.flatKey(*key), "x!:/2")
 
 
-    def _test_formatFlatEvent_fieldNamesSame(self, event=None):
+    def _test_formatFlatEventFieldNamesSame(self, event=None):
         """
         The same format field used twice in one event is rendered twice.
         @param event: An event to flatten.  If C{None}, create a new event.
@@ -204,20 +204,20 @@ class FlatFormattingTests(unittest.TestCase):
         return event
 
 
-    def test_formatFlatEvent_fieldNamesSame(self):
+    def test_formatFlatEventFieldNamesSame(self):
         """
         The same format field used twice in one event is rendered twice.
         """
-        self._test_formatFlatEvent_fieldNamesSame()
+        self._test_formatFlatEventFieldNamesSame()
 
 
-    def test_formatFlatEvent_fieldNamesSame_again(self):
+    def test_formatFlatEventFieldNamesSame_again(self):
         """
         The same event flattened twice gives the same (already rendered)
         result.
         """
-        event = self._test_formatFlatEvent_fieldNamesSame()
-        self._test_formatFlatEvent_fieldNamesSame(event)
+        event = self._test_formatFlatEventFieldNamesSame()
+        self._test_formatFlatEventFieldNamesSame(event)
 
 
     def test_extractField(self, flattenFirst=lambda x: x):
