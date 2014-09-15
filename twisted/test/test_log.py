@@ -686,7 +686,7 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
 
         self.assertTrue(
             result.startswith(prefix),
-            "{!r} does not start with {!r}".format(result, prefix)
+            "{0!r} does not start with {1!r}".format(result, prefix)
         )
 
 
@@ -696,28 +696,18 @@ class FileObserverTestCase(LogPublisherTestCaseMixin,
         """
         output = StringIO()
         flo = log.FileLogObserver(output)
-        events = []
-
-        def observer(event):
-            # Capture the event for reference and pass it along to flo
-            events.append(event)
-            flo.emit(event)
 
         publisher = log.LogPublisher()
-        publisher.addObserver(observer)
+        publisher.addObserver(flo.emit)
 
         publisher.msg("Hello!")
-        self.assertEqual(len(events), 1)
-        event = events[0]
 
         result = output.getvalue()
-        prefix = "{time} [{system}] ".format(
-            time=flo.formatTime(event["time"]), system=event["system"],
-        )
+        suffix = "Hello!\n"
 
         self.assertTrue(
-            result.startswith(prefix),
-            "{!r} does not start with {!r}".format(result, prefix)
+            result.endswith(suffix),
+            "{0!r} does not end with {1!r}".format(result, suffix)
         )
 
 
