@@ -65,7 +65,7 @@ The same rule applies for C{frozenset} and C{sets.ImmutableSet}.
 from __future__ import division, absolute_import
 
 from twisted.python.compat import _PY3, get_imFunc, get_imSelf, get_imClass
-from twisted.python.compat import nativeString
+from twisted.python.compat import nativeString, networkString
 
 # System Imports
 import pickle
@@ -246,6 +246,8 @@ def setUnjellyableForClass(classname, unjellyable):
     """
 
     global unjellyableRegistry
+    if isinstance(classname, (bytes, unicode)):
+        classname = nativeString(classname)
     classname = _maybeClass(classname)
     unjellyableRegistry[classname] = unjellyable
     globalSecurity.allowTypes(classname)
@@ -320,7 +322,7 @@ def getInstanceState(inst, jellier):
     else:
         state = inst.__dict__
     sxp = jellier.prepare(inst)
-    sxp.extend([qual(inst.__class__), jellier.jelly(state)])
+    sxp.extend([networkString(qual(inst.__class__)), jellier.jelly(state)])
     return jellier.preserve(inst, sxp)
 
 
@@ -373,7 +375,7 @@ class Jellyable:
         """
         sxp = jellier.prepare(self)
         sxp.extend([
-            qual(self.__class__),
+            networkString(qual(self.__class__)),
             jellier.jelly(self.getStateFor(jellier))])
         return jellier.preserve(self, sxp)
 
@@ -542,7 +544,7 @@ class _Jellier:
             elif objType is FunctionType:
             # TODO: has probably no test. What is whichmodule ?
                 name = obj.__name__
-                return [function_atom, str(pickle.whichmodule(obj, obj.__name__))
+                return [function_atom, networkString(pickle.whichmodule(obj, obj.__name__))
                         + b'.' +
                         name.encode()]
             elif objType is ModuleType:
@@ -553,20 +555,20 @@ class _Jellier:
                 if obj.tzinfo:
                     raise NotImplementedError(
                         "Currently can't jelly datetime objects with tzinfo")
-                return [datetime_atom, b'%s %s %s %s %s %s %s' % (
+                return [datetime_atom, networkString('%s %s %s %s %s %s %s' % (
                     obj.year, obj.month, obj.day, obj.hour,
-                    obj.minute, obj.second, obj.microsecond)]
+                    obj.minute, obj.second, obj.microsecond))]
             elif objType is datetime.time:
                 if obj.tzinfo:
                     raise NotImplementedError(
                         "Currently can't jelly datetime objects with tzinfo")
-                return [time_atom, b'%s %s %s %s' % (obj.hour, obj.minute,
-                                                 obj.second, obj.microsecond)]
+                return [time_atom, networkString('%s %s %s %s' % (obj.hour, obj.minute,
+                                                 obj.second, obj.microsecond))]
             elif objType is datetime.date:
-                return [date_atom, b'%s %s %s' % (obj.year, obj.month, obj.day)]
+                return [date_atom, networkString('%s %s %s' % (obj.year, obj.month, obj.day))]
             elif objType is datetime.timedelta:
-                return [timedelta_atom, b'%s %s %s' % (obj.days, obj.seconds,
-                                                   obj.microseconds)]
+                return [timedelta_atom, networkString('%s %s %s' % (obj.days, obj.seconds,
+                                                   obj.microseconds))]
             elif objType is ClassType or issubclass(objType, type):
                 return [class_atom, qual(obj)]
             elif objType is decimal.Decimal:
@@ -685,7 +687,7 @@ class _Unjellier:
     def unjelly(self, obj):
         if type(obj) is not ListType:
             return obj
-        jelType = obj[0]
+        jelType = nativeString(obj[0])
         if not self.taster.isTypeAllowed(jelType):
             raise InsecureJelly(jelType)
         regClass = unjellyableRegistry.get(jelType)
@@ -901,6 +903,7 @@ class _Unjellier:
         if not isinstance(moduleName, bytes):
             raise InsecureJelly(
                 "Attempted to unjelly a module with a non-string name.")
+        moduleName = nativeString(moduleName)
         if not self.taster.isModuleAllowed(moduleName):
             raise InsecureJelly(
                 "Attempted to unjelly module named %r" % (moduleName,))
@@ -925,12 +928,13 @@ class _Unjellier:
 
 
     def _unjelly_function(self, rest):
-        modSplit = rest[0].split('.')
+        qualName = nativeString(rest[0])
+        modSplit = qualName.split('.')
         modName = '.'.join(modSplit[:-1])
         if not self.taster.isModuleAllowed(modName):
             raise InsecureJelly("Module not allowed: %s"% modName)
         # XXX do I need an isFunctionAllowed?
-        function = namedObject(rest[0])
+        function = namedObject(qualName)
         return function
 
 
@@ -980,7 +984,7 @@ class _Unjellier:
         """
         (internal) Unjelly a method.
         """
-        im_name = rest[0]
+        im_name = nativeString(rest[0])
         im_self = self.unjelly(rest[1])
         im_class = self.unjelly(rest[2])
         if not isinstance(im_class, (type, ClassType)):

@@ -29,6 +29,8 @@ To get started, begin with L{PBClientFactory} and L{PBServerFactory}.
 
 from __future__ import division, absolute_import
 
+from twisted.python.compat import xrange, networkString, nativeString
+
 import random
 import types
 from hashlib import md5
@@ -239,7 +241,7 @@ class Avatar:
 
         args = broker.unserialize(args, self)
         kw = broker.unserialize(kw, self)
-        method = getattr(self, "perspective_%s" % message)
+        method = getattr(self, "perspective_%s" % nativeString(message))
         try:
             state = method(*args, **kw)
         except TypeError:
@@ -560,7 +562,7 @@ class Broker(banana.Banana):
         """
         if isinstance(sexp, types.ListType):
             command = sexp[0]
-            methodName = "proto_%s" % command
+            methodName = "proto_%s" % nativeString(command)
             method = getattr(self, methodName, None)
             if method:
                 method(*sexp[1:])
@@ -871,7 +873,9 @@ class Broker(banana.Banana):
                 rval.addCallbacks(pbc, pbe)
         else:
             rval = None
-        self.sendCall(prefix+"message", requestID, objectID, message, answerRequired, netArgs, netKw)
+        if isinstance(objectID, str):
+            objectID = networkString(objectID)
+        self.sendCall(prefix+"message", requestID, objectID, networkString(message), answerRequired, netArgs, netKw)
         return rval
 
     def proto_message(self, requestID, objectID, message, answerRequired, netArgs, netKw):
@@ -885,6 +889,9 @@ class Broker(banana.Banana):
         Look up message based on object, unserialize the arguments, and
         invoke it with args, and send an 'answer' or 'error' response.
         """
+        message = nativeString(message)
+        if isinstance(objectID, bytes):
+            objectID = nativeString(objectID)
         try:
             object = findObjMethod(objectID)
             if object is None:

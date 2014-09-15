@@ -18,7 +18,7 @@ but may have a small impact on users who subclass and override methods.
 
 from __future__ import division, absolute_import
 
-from twisted.python.compat import _PY3
+from twisted.python.compat import _PY3, nativeString, networkString
 from twisted.python.util import FancyEqMixin
 
 
@@ -115,9 +115,9 @@ class Referenceable(Serializable):
         """
         args = broker.unserialize(args)
         kw = broker.unserialize(kw)
-        method = getattr(self, "remote_%s" % message, None)
+        method = getattr(self, "remote_%s" % nativeString(message), None)
         if method is None:
-            raise NoSuchMethod("No such method: remote_%s" % (message,))
+            raise NoSuchMethod("No such method: remote_%s" % (nativeString(message),))
         try:
             state = method(*args, **kw)
         except TypeError:
@@ -214,7 +214,7 @@ class ViewPoint(Referenceable):
         """
         args = broker.unserialize(args, self.perspective)
         kw = broker.unserialize(kw, self.perspective)
-        method = getattr(self.object, "view_%s" % message)
+        method = getattr(self.object, "view_%s" % nativeString(message))
         try:
             state = method(*(self.perspective,)+args, **kw)
         except TypeError:
@@ -301,7 +301,7 @@ class Copyable(Serializable):
         if jellier.invoker is None:
             return getInstanceState(self, jellier)
         p = jellier.invoker.serializingPerspective
-        t = self.getTypeToCopyFor(p)
+        t = networkString(self.getTypeToCopyFor(p))
         state = self.getStateToCopyFor(p)
         sxp = jellier.prepare(self)
         sxp.extend([t, jellier.jelly(state)])
@@ -353,7 +353,7 @@ class Cacheable(Copyable):
             state = self.getStateToCacheAndObserveFor(p, observer)
             l = jellier.prepare(self)
             jstate = jellier.jelly(state)
-            l.extend([type_, luid, jstate])
+            l.extend([networkString(type_), luid, jstate])
             return jellier.preserve(self, l)
         else:
             return cached_atom, luid
@@ -421,7 +421,7 @@ class RemoteCache(RemoteCopy, Serializable):
 
         args = broker.unserialize(args)
         kw = broker.unserialize(kw)
-        method = getattr(self, "observe_%s" % message)
+        method = getattr(self, "observe_%s" % nativeString(message))
         try:
             state = method(*args, **kw)
         except TypeError:
