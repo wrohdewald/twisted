@@ -7,6 +7,8 @@ import StringIO
 import sys
 from functools import partial
 
+from itertools import chain
+
 # Twisted Imports
 from twisted.trial import unittest
 from twisted.spread import banana
@@ -18,7 +20,7 @@ from twisted.test.proto_helpers import StringTransport
 
 class MathTestCase(unittest.TestCase):
     def test_int2b128(self):
-        funkylist = range(0,100) + range(1000,1100) + range(1000000,1000100) + [1024 **10l]
+        funkylist = chain(range(0,100), range(1000,1100), range(1000000,1000100), [1024 **10l,])
         for i in funkylist:
             x = StringIO.StringIO()
             banana.int2b128(i, x.write)
