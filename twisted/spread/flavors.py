@@ -41,8 +41,10 @@ setCopierForClassTree = setUnjellyableForClassTree
 setFactoryForClass = setUnjellyableFactoryForClass
 copyTags = unjellyableRegistry
 
+local_atom = "local"
 copy_atom = "copy"
 cache_atom = "cache"
+lcache_atom = "lcache"
 cached_atom = "cached"
 remote_atom = "remote"
 
@@ -125,8 +127,7 @@ class Referenceable(Serializable):
         Return a tuple which will be used as the s-expression to
         serialize this to a peer.
         """
-
-        return ["remote", jellier.invoker.registerReference(self)]
+        return [remote_atom, jellier.invoker.registerReference(self)]
 
 
 @implementer(IPBRoot)
@@ -430,7 +431,7 @@ class RemoteCache(RemoteCopy, Serializable):
         if jellier.invoker is None:
             return getInstanceState(self, jellier)
         assert jellier.invoker is self.broker, "You cannot exchange cached proxies between brokers."
-        return 'lcache', self.luid
+        return lcache_atom, self.luid
 
 
     def unjellyFor(self, unjellier, jellyList):
@@ -491,20 +492,20 @@ def unjellyCached(unjellier, unjellyList):
     cProxy = _newDummyLike(cNotProxy)
     return cProxy
 
-setUnjellyableForClass("cached", unjellyCached)
+setUnjellyableForClass(cached_atom, unjellyCached)
 
 def unjellyLCache(unjellier, unjellyList):
     luid = unjellyList[1]
     obj = unjellier.invoker.remotelyCachedForLUID(luid)
     return obj
 
-setUnjellyableForClass("lcache", unjellyLCache)
+setUnjellyableForClass(lcache_atom, unjellyLCache)
 
 def unjellyLocal(unjellier, unjellyList):
     obj = unjellier.invoker.localObjectForID(unjellyList[1])
     return obj
 
-setUnjellyableForClass("local", unjellyLocal)
+setUnjellyableForClass(local_atom, unjellyLocal)
 
 class RemoteCacheMethod:
     """A method on a reference to a L{RemoteCache}.
@@ -531,7 +532,7 @@ class RemoteCacheMethod:
         if cacheID is None:
             from pb import ProtocolError
             raise ProtocolError("You can't call a cached method when the object hasn't been given to the peer yet.")
-        return self.broker._sendMessage('cache', self.perspective, cacheID, self.name, args, kw)
+        return self.broker._sendMessage(cache_atom, self.perspective, cacheID, self.name, args, kw)
 
 class RemoteCacheObserver:
     """I am a reverse-reference to the peer's L{RemoteCache}.
@@ -583,7 +584,7 @@ class RemoteCacheObserver:
             from pb import ProtocolError
             raise ProtocolError("You can't call a cached method when the "
                                 "object hasn't been given to the peer yet.")
-        return self.broker._sendMessage('cache', self.perspective, cacheID,
+        return self.broker._sendMessage(cache_atom, self.perspective, cacheID,
                                         _name, args, kw)
 
     def remoteMethod(self, key):
