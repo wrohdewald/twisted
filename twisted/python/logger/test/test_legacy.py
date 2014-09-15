@@ -402,7 +402,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_observed(self):
         """
-        The observer should get called exactly once.
+        The observer gets called exactly once.
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
@@ -411,7 +411,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_time(self):
         """
-        The C{"time"} key should get copied to C{"log_time"}.
+        The C{"time"} key gets copied to C{"log_time"}.
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
@@ -422,7 +422,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_message(self):
         """
-        An adapted old-style event should format as text in the same way as the
+        An adapted old-style event formats as text in the same way as the
         given C{textFromEventDict} callable would format it.
         """
         def textFromEventDict(event):
@@ -438,7 +438,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_defaultLogLevel(self):
         """
-        Adapted event should have log level of L{LogLevel.info}.
+        Adapted event has log level of L{LogLevel.info}.
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
@@ -448,7 +448,7 @@ class PublishToNewObserverTests(unittest.TestCase):
     def test_isError(self):
         """
         If C{"isError"} is set to C{1} on the legacy event, the C{"log_level"}
-        key should get set to L{LogLevel.critical}.
+        key gets set to L{LogLevel.critical}.
         """
         publishToNewObserver(
             self.observer, self.legacyEvent(isError=1), lambda e: u""
@@ -460,7 +460,7 @@ class PublishToNewObserverTests(unittest.TestCase):
     def test_stdlibLogLevel(self):
         """
         If C{"logLevel"} is set to a standard library logging level on the
-        legacy event, the C{"log_level"} key should get set to the
+        legacy event, the C{"log_level"} key gets set to the
         corresponding level.
         """
         publishToNewObserver(
@@ -474,7 +474,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_defaultNamespace(self):
         """
-        Adapted event should have a namespace of C{"log_legacy"}.
+        Adapted event has a namespace of C{"log_legacy"}.
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 
@@ -483,7 +483,7 @@ class PublishToNewObserverTests(unittest.TestCase):
 
     def test_system(self):
         """
-        The C{"system"} key should get copied to C{"log_system"}.
+        The C{"system"} key gets copied to C{"log_system"}.
         """
         publishToNewObserver(self.observer, self.legacyEvent(), lambda e: u"")
 

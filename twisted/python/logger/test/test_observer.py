@@ -114,7 +114,7 @@ class LogPublisherTests(unittest.TestCase):
 
     def test_observerRaises(self):
         """
-        Observer raises an exception during fan out: a failure should be
+        Observer raises an exception during fan out: a failure is
         logged, but not re-raised.  Life goes on.
         """
         event = dict(foo=1, bar=2)

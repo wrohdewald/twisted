@@ -213,7 +213,7 @@ class TimeFormattingTests(unittest.TestCase):
 
     def test_formatTimeWithNoTime(self):
         """
-        If C{when} argument is C{None}, we should get the default output.
+        If C{when} argument is C{None}, we get the default output.
         """
         self.assertEqual(formatTime(None), u"-")
         self.assertEqual(formatTime(None, default=u"!"), u"!")
@@ -221,7 +221,7 @@ class TimeFormattingTests(unittest.TestCase):
 
     def test_formatTimeWithNoFormat(self):
         """
-        If C{timeFormat} argument is C{None}, we should get the default output.
+        If C{timeFormat} argument is C{None}, we get the default output.
         """
         t = mktime((2013, 9, 24, 11, 40, 47, 1, 267, 1))
         self.assertEqual(formatTime(t, timeFormat=None), u"-")

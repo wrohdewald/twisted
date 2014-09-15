@@ -155,7 +155,7 @@ class LoggerTests(unittest.TestCase):
 
     def test_sourceOnClass(self):
         """
-        C{log_source} event key should refer to the class.
+        C{log_source} event key refers to the class.
         """
         def observer(event):
             self.assertEqual(event["log_source"], Thingo)
@@ -168,7 +168,7 @@ class LoggerTests(unittest.TestCase):
 
     def test_sourceOnInstance(self):
         """
-        C{log_source} event key should refer to the instance.
+        C{log_source} event key refers to the instance.
         """
         def observer(event):
             self.assertEqual(event["log_source"], thingo)
@@ -182,7 +182,7 @@ class LoggerTests(unittest.TestCase):
 
     def test_sourceUnbound(self):
         """
-        C{log_source} event key should be C{None}.
+        C{log_source} event key is C{None}.
         """
         def observer(event):
             self.assertEqual(event["log_source"], None)

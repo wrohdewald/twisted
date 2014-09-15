@@ -132,8 +132,7 @@ class STDLibLogObserverTests(unittest.TestCase):
 
     def test_callerInfo(self):
         """
-        C{pathname}, C{lineno}, C{exc_info}, C{func} should
-        be set properly on records.
+        C{pathname}, C{lineno}, C{exc_info}, C{func} is properly set on records.
         """
         filename, logLine = nextLine()
         records, output = self.logEvent({})
