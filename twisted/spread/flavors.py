@@ -18,6 +18,10 @@ but may have a small impact on users who subclass and override methods.
 
 from __future__ import division, absolute_import
 
+from twisted.python.compat import _PY3
+from twisted.python.util import FancyEqMixin
+
+
 # NOTE: this module should NOT import pb; it is supposed to be a module which
 # abstractly defines remotely accessible types.  Many of these types expect to
 # be serialized by Jelly, but they ought to be accessible through other
@@ -459,13 +463,14 @@ class RemoteCache(RemoteCopy, Serializable):
 ##         """Final finalization call, made after all remote references have been lost.
 ##         """
 
-    def __cmp__(self, other):
-        """Compare me [to another RemoteCache.
+    def __eq__(self, other):
+        """Compare me for equality with another L{RemoteCache}.
         """
-        if isinstance(other, self.__class__):
-            return cmp(id(self.__dict__), id(other.__dict__))
-        else:
-            return cmp(id(self.__dict__), other)
+        return id(self.__dict__) == id(other.__dict__)
+    def __ne__(self, other):
+        """Compare me for inequality with another L{RemoteCache}.
+        """
+        return id(self.__dict__) != id(other.__dict__)
 
     def __hash__(self):
         """Hash me.
@@ -507,9 +512,12 @@ def unjellyLocal(unjellier, unjellyList):
 
 setUnjellyableForClass(local_atom, unjellyLocal)
 
-class RemoteCacheMethod:
+class RemoteCacheMethod(FancyEqMixin):
     """A method on a reference to a L{RemoteCache}.
     """
+
+    compareAttributes = (
+            "name", "broker", "perspective", "cached")
 
     def __init__(self, name, broker, cached, perspective):
         """(internal) initialize.
@@ -518,9 +526,6 @@ class RemoteCacheMethod:
         self.broker = broker
         self.perspective = perspective
         self.cached = cached
-
-    def __cmp__(self, other):
-        return cmp((self.name, self.broker, self.perspective, self.cached), other)
 
     def __hash__(self):
         return hash((self.name, self.broker, self.perspective, self.cached))
@@ -534,7 +539,7 @@ class RemoteCacheMethod:
             raise ProtocolError("You can't call a cached method when the object hasn't been given to the peer yet.")
         return self.broker._sendMessage(cache_atom, self.perspective, cacheID, self.name, args, kw)
 
-class RemoteCacheObserver:
+class RemoteCacheObserver(FancyEqMixin):
     """I am a reverse-reference to the peer's L{RemoteCache}.
 
     I am generated automatically when a cache is serialized.  I
@@ -542,6 +547,9 @@ class RemoteCacheObserver:
     will represent a particular L{Cacheable}; I am the additional
     object passed to getStateToCacheAndObserveFor.
     """
+
+    compareAttributes = (
+            "broker", "perspective", "cached")
 
     def __init__(self, broker, cached, perspective):
         """(internal) Initialize me.
@@ -569,12 +577,6 @@ class RemoteCacheObserver:
         return (  (hash(self.broker) % 2**10)
                 + (hash(self.perspective) % 2**10)
                 + (hash(self.cached) % 2**10))
-
-    def __cmp__(self, other):
-        """Compare me to another L{RemoteCacheObserver}.
-        """
-
-        return cmp((self.broker, self.perspective, self.cached), other)
 
     def callRemote(self, _name, *args, **kw):
         """(internal) action method.
