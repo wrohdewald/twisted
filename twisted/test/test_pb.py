@@ -11,7 +11,7 @@ only specific tests for old API.
 # issue1195 TODOs: replace pump.pump() with something involving Deferreds.
 # Clean up warning suppression.
 
-from twisted.python.compat import get_imSelf
+from twisted.python.compat import get_imSelf, xrange
 
 import sys, os, time, gc, weakref
 
