@@ -100,7 +100,7 @@ class Banana(protocol.Protocol, styles.Ephemeral):
 
     # The specification calls these profiles but this implementation calls them
     # dialects instead.
-    knownDialects = ["pb", "none"]
+    knownDialects = [b"pb", b"none"]
 
     prefixLimit = None
     sizeLimit = SIZE_LIMIT
@@ -168,7 +168,7 @@ class Banana(protocol.Protocol, styles.Ephemeral):
         else:
             self.callExpressionReceived(item)
 
-    buffer = ''
+    buffer = b''
 
     def dataReceived(self, chunk):
         buffer = self.buffer + chunk
@@ -243,7 +243,7 @@ class Banana(protocol.Protocol, styles.Ephemeral):
             while listStack and (len(listStack[-1][1]) == listStack[-1][0]):
                 item = listStack.pop()[1]
                 gotItem(item)
-        self.buffer = ''
+        self.buffer = b''
 
 
     def expressionReceived(self, lst):
@@ -254,41 +254,41 @@ class Banana(protocol.Protocol, styles.Ephemeral):
 
     outgoingVocabulary = {
         # Jelly Data Types
-        'None'           :  1,
-        'class'          :  2,
-        'dereference'    :  3,
-        'reference'      :  4,
-        'dictionary'     :  5,
-        'function'       :  6,
-        'instance'       :  7,
-        'list'           :  8,
-        'module'         :  9,
-        'persistent'     : 10,
-        'tuple'          : 11,
-        'unpersistable'  : 12,
+        b'None'           :  1,
+        b'class'          :  2,
+        b'dereference'    :  3,
+        b'reference'      :  4,
+        b'dictionary'     :  5,
+        b'function'       :  6,
+        b'instance'       :  7,
+        b'list'           :  8,
+        b'module'         :  9,
+        b'persistent'     : 10,
+        b'tuple'          : 11,
+        b'unpersistable'  : 12,
 
         # PB Data Types
-        'copy'           : 13,
-        'cache'          : 14,
-        'cached'         : 15,
-        'remote'         : 16,
-        'local'          : 17,
-        'lcache'         : 18,
+        b'copy'           : 13,
+        b'cache'          : 14,
+        b'cached'         : 15,
+        b'remote'         : 16,
+        b'local'          : 17,
+        b'lcache'         : 18,
 
         # PB Protocol Messages
-        'version'        : 19,
-        'login'          : 20,
-        'password'       : 21,
-        'challenge'      : 22,
-        'logged_in'      : 23,
-        'not_logged_in'  : 24,
-        'cachemessage'   : 25,
-        'message'        : 26,
-        'answer'         : 27,
-        'error'          : 28,
-        'decref'         : 29,
-        'decache'        : 30,
-        'uncache'        : 31,
+        b'version'        : 19,
+        b'login'          : 20,
+        b'password'       : 21,
+        b'challenge'      : 22,
+        b'logged_in'      : 23,
+        b'not_logged_in'  : 24,
+        b'cachemessage'   : 25,
+        b'message'        : 26,
+        b'answer'         : 27,
+        b'error'          : 28,
+        b'decref'         : 29,
+        b'decache'        : 30,
+        b'uncache'        : 31,
         }
 
     incomingVocabulary = {}
@@ -347,7 +347,7 @@ class Banana(protocol.Protocol, styles.Ephemeral):
             write(struct.pack("!d", obj))
         elif isinstance(obj, str):
             # TODO: an API for extending banana...
-            if self.currentDialect == "pb" and obj in self.outgoingSymbols:
+            if self.currentDialect == b"pb" and obj in self.outgoingSymbols:
                 symbolID = self.outgoingSymbols[obj]
                 int2b128(symbolID, write)
                 write(VOCAB)
@@ -366,7 +366,7 @@ class Banana(protocol.Protocol, styles.Ephemeral):
 # For use from the interactive interpreter
 _i = Banana()
 _i.connectionMade()
-_i._selectDialect("none")
+_i._selectDialect(b"none")
 
 
 def encode(lst):
@@ -386,6 +386,6 @@ def decode(st):
     try:
         _i.dataReceived(st)
     finally:
-        _i.buffer = ''
+        _i.buffer = b''
         del _i.expressionReceived
     return l[0]
