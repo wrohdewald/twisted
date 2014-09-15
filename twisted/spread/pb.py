@@ -643,13 +643,13 @@ class Broker(banana.Banana):
         # nuke potential circular references.
         self.luids = None
         if self.waitingForAnswers:
-            for d in self.waitingForAnswers.values():
+            for d in list(self.waitingForAnswers.values()):
                 try:
                     d.errback(failure.Failure(PBConnectionLost(reason)))
                 except:
                     log.deferr()
         # Assure all Cacheable.stoppedObserving are called
-        for lobj in self.remotelyCachedObjects.values():
+        for lobj in list(self.remotelyCachedObjects.values()):
             cacheable = lobj.object
             perspective = lobj.perspective
             try:
