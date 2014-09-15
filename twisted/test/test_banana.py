@@ -506,8 +506,12 @@ class BananaTestCase(BananaTestBase):
         @param data: The bytes to deliver.
         @type data: L{bytes}
         """
-        for byte in data:
-            self.enc.dataReceived(byte)
+        if _PY3:
+            for byte in data:
+                self.enc.dataReceived(bytes([byte]))
+        else:
+            for byte in data:
+                self.enc.dataReceived(byte)
 
 
     def test_oversizedList(self):

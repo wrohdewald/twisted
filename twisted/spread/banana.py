@@ -37,24 +37,40 @@ def int2b128(integer, stream):
         integer = integer >> 7
 
 
-def b1282int(st):
-    """
-    Convert an integer represented as a base 128 string into an C{int} or
-    C{long}.
+if _PY3:
+    def b1282int(st):
+        """
+        Convert an integer represented as a base 128 string into an C{int}.
+        @param st: The integer encoded in a string.
+        @type st: C{bytes}
+        @return: The integer value extracted from the string.
+        @rtype: C{int}
+        """
+        e = 1
+        i = 0
+        for char in st:
+            i += (char * e)
+            e <<= 7
+        return i
+else:
+    def b1282int(st):
+        """
+        Convert an integer represented as a base 128 string into an C{int} or
+        C{long}.
 
-    @param st: The integer encoded in a string.
-    @type st: C{str}
+        @param st: The integer encoded in a string.
+        @type st: C{str}
 
-    @return: The integer value extracted from the string.
-    @rtype: C{int} or C{long}
-    """
-    e = 1
-    i = 0
-    for char in st:
-        n = ord(char)
-        i += (n * e)
-        e <<= 7
-    return i
+        @return: The integer value extracted from the string.
+        @rtype: C{int} or C{long}
+        """
+        e = 1
+        i = 0
+        for char in st:
+            n = ord(char)
+            i += (n * e)
+            e <<= 7
+        return i
 
 # delimiter characters.
 LIST     = networkChar(0x80)
@@ -189,7 +205,10 @@ class Banana(protocol.Protocol, styles.Ephemeral):
                     raise BananaError("Security precaution: more than %d bytes of prefix" % (self.prefixLimit,))
                 return
             num = buffer[:pos]
-            typebyte = buffer[pos]
+            if _PY3:
+                typebyte = networkChar(buffer[pos])
+            else:
+                typebyte = buffer[pos]
             rest = buffer[pos+1:]
             if len(num) > self.prefixLimit:
                 raise BananaError("Security precaution: longer than %d bytes worth of prefix" % (self.prefixLimit,))
@@ -347,7 +366,7 @@ class Banana(protocol.Protocol, styles.Ephemeral):
         elif isinstance(obj, float):
             write(FLOAT)
             write(struct.pack("!d", obj))
-        elif isinstance(obj, str):
+        elif isinstance(obj, bytes if _PY3 else str):
             # TODO: an API for extending banana...
             if self.currentDialect == b"pb" and obj in self.outgoingSymbols:
                 symbolID = self.outgoingSymbols[obj]
