@@ -365,6 +365,16 @@ class Cacheable(Copyable):
         getStateToCacheAndObserveFor.
         """
 
+def nativeIdentifierDict(state):
+    """
+    I get a dict from the wire (all bytes) where the keys will be
+    used as attribute names, so I convert all keys to nativeString
+    """
+    result = {}
+    for k, v in state.items():
+        result[nativeString(k)] = v
+    return result
+
 
 
 class RemoteCopy(Unjellyable):
@@ -388,8 +398,7 @@ class RemoteCopy(Unjellyable):
         object's dictionary (or a filtered approximation of it depending
         on my peer's perspective).
         """
-
-        self.__dict__ = state
+        self.__dict__ = nativeIdentifierDict(state)
 
     def unjellyFor(self, unjellier, jellyList):
         if unjellier.invoker is None:
