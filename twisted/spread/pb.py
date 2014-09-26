@@ -30,6 +30,7 @@ To get started, begin with L{PBClientFactory} and L{PBServerFactory}.
 from __future__ import division, absolute_import
 
 from twisted.python.compat import xrange, networkString, nativeString
+from twisted.python.compat import nativeString
 from twisted.python.compat import unicode, networkChar
 from twisted.python.util import FancyEqMixin
 
@@ -468,8 +469,11 @@ class CopiedFailure(RemoteCopy, failure.Failure):
         if file is None:
             file = log.logfile
         file.write("Traceback from remote host -- ")
-        file.write(self.traceback)
-        file.write(self.type + ": " + self.value)
+        file.write(nativeString(self.traceback, encoding='utf-8'))
+        msg = "{0}: {1}".format(
+            nativeString(self.type),
+            nativeString(self.value, encoding='utf-8'))
+        file.write(msg)
         file.write('\n')
 
 
