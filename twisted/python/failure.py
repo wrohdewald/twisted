@@ -224,6 +224,7 @@ class Failure:
             self.value = exc_value
         if isinstance(self.value, Failure):
             self.__dict__ = self.value.__dict__
+# TODO: warum?            self.parents = []
             return
         if tb is None:
             if exc_tb:

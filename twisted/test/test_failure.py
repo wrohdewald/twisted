@@ -46,18 +46,39 @@ class FailureTestCase(SynchronousTestCase):
     Tests for L{failure.Failure}.
     """
 
-    def test_failAndTrap(self):
+    def failAndTrap(self, message):
         """
-        Trapping a L{Failure}.
+        Trapping a L{Failure} with message.
         """
         try:
-            raise NotImplementedError('test')
+            raise NotImplementedError(message)
         except:
             f = failure.Failure()
         error = f.trap(SystemExit, RuntimeError)
         self.assertEqual(error, RuntimeError)
         self.assertEqual(f.type, NotImplementedError)
+        self.assertEqual(reflect.safe_str(f.value), message)
 
+
+    def test_failAndTrap(self):
+        """
+        Trapping a L{Failure}.
+        """
+        self.failAndTrap('test')
+
+
+    def test_failAndTrapUnicode(self):
+        """
+        Trapping a L{Failure} with a unicode string
+        """
+        self.failAndTrap(b't\xc3\xbcst'.decode('utf-8'))
+
+
+    if not _PY3:
+        test_failAndTrapUnicode.skip = (
+            "In Python2, exception strings must be ascii only."
+            "raise NotImplementedError(x) with unicode for x"
+            "is a syntax error.")
 
     def test_trapRaisesCurrentFailure(self):
         """
