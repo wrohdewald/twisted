@@ -30,7 +30,7 @@ To get started, begin with L{PBClientFactory} and L{PBServerFactory}.
 from __future__ import division, absolute_import
 
 from twisted.python.compat import xrange, networkString, nativeString
-from twisted.python.compat import unicode
+from twisted.python.compat import unicode, networkChar
 from twisted.python.util import FancyEqMixin
 
 import random
@@ -1083,7 +1083,7 @@ def challenge():
     """I return some random data."""
     crap = b''
     for x in range(random.randrange(15,25)):
-        crap = crap + chr(random.randint(65,90))
+        crap = crap + networkChar(random.randint(65,90))
     crap = md5(crap).digest()
     return crap
 

@@ -11,7 +11,7 @@ only specific tests for old API.
 # issue1195 TODOs: replace pump.pump() with something involving Deferreds.
 # Clean up warning suppression.
 
-from twisted.python.compat import get_imSelf, xrange
+from twisted.python.compat import get_imSelf, xrange, networkChar
 
 import sys, os, time, gc, weakref
 
@@ -109,9 +109,9 @@ class IOPump:
         self.client.transport._checkProducer()
         self.server.transport._checkProducer()
         for byte in cData:
-            self.server.dataReceived(byte)
+            self.server.dataReceived(networkChar(byte))
         for byte in sData:
-            self.client.dataReceived(byte)
+            self.client.dataReceived(networkChar(byte))
         if cData or sData:
             return 1
         else:
