@@ -13,9 +13,8 @@ only specific tests for old API.
 
 from twisted.python.compat import get_imSelf, xrange, networkChar
 
-import sys, os, time, gc, weakref
+import sys, os, time, gc, weakref, io
 
-from cStringIO import StringIO
 from zope.interface import implementer, Interface
 
 from twisted.trial import unittest
@@ -133,8 +132,8 @@ def connectedServerAndClient(realm=None):
     factory = pb.PBServerFactory(portal.Portal(realm, [checker]))
     serverBroker = factory.buildProtocol(('127.0.0.1',))
 
-    clientTransport = StringIO()
-    serverTransport = StringIO()
+    clientTransport = io.BytesIO()
+    serverTransport = io.BytesIO()
     clientBroker.makeConnection(protocol.FileWrapper(clientTransport))
     serverBroker.makeConnection(protocol.FileWrapper(serverTransport))
     pump = IOPump(clientBroker, serverBroker, clientTransport, serverTransport)
@@ -1348,7 +1347,7 @@ class NewCredTestCase(unittest.TestCase):
         it doesn't raise any exceptions or log any errors.
         """
         serverProto = self.factory.buildProtocol(('127.0.0.1', 12345))
-        serverProto.makeConnection(protocol.FileWrapper(StringIO()))
+        serverProto.makeConnection(protocol.FileWrapper(io.BytesIO()))
         serverProto.connectionLost(failure.Failure(main.CONNECTION_DONE))
 
 
