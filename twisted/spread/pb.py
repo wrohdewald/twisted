@@ -50,7 +50,7 @@ from twisted.persisted import styles
 from twisted.python.components import registerAdapter
 
 from twisted.spread.interfaces import IJellyable, IUnjellyable
-from twisted.spread.jelly import jelly, unjelly, globalSecurity
+from twisted.spread.jelly import jelly, unjelly, globalSecurity, _newInstance
 from twisted.spread import banana
 
 from twisted.spread.flavors import Serializable
@@ -495,7 +495,7 @@ setUnjellyableForClass(CopyableFailure, CopiedFailure)
 
 
 def failure2Copyable(fail, unsafeTracebacks=0):
-    f = types.InstanceType(CopyableFailure, fail.__dict__)
+    f = _newInstance(CopyableFailure, fail.__dict__)
     f.unsafeTracebacks = unsafeTracebacks
     return f
 
