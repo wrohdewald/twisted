@@ -34,7 +34,6 @@ from twisted.python.compat import unicode
 from twisted.python.util import FancyEqMixin
 
 import random
-import types
 from hashlib import md5
 
 from zope.interface import implementer, Interface
@@ -575,7 +574,7 @@ class Broker(banana.Banana):
     def expressionReceived(self, sexp):
         """Evaluate an expression as it's received.
         """
-        if isinstance(sexp, types.ListType):
+        if isinstance(sexp, list):
             command = sexp[0]
             methodName = "proto_%s" % nativeString(command)
             method = getattr(self, methodName, None)
