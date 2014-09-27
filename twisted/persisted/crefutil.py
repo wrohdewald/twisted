@@ -8,6 +8,8 @@
 Utility classes for dealing with circular references.
 """
 
+from twisted.python.compat import _PY3, xrange
+
 import types
 
 from twisted.python import log, reflect
@@ -53,7 +55,7 @@ class _Container(NotKnown):
         NotKnown.__init__(self)
         self.containerType = containerType
         self.l = l
-        self.locs = range(len(l))
+        self.locs = list(range(len(l)))
         for idx in xrange(len(l)):
             if not isinstance(l[idx], NotKnown):
                 self.locs.remove(idx)
@@ -109,8 +111,11 @@ class _InstanceMethod(NotKnown):
     def __setitem__(self, n, obj):
         assert n == 0, "only zero index allowed"
         if not isinstance(obj, NotKnown):
-            method = types.MethodType(self.my_class.__dict__[self.name],
-                                      obj, self.my_class)
+            if _PY3:
+                method = types.MethodType(self.my_class.__dict__[self.name], obj)
+            else:
+                method = types.MethodType(self.my_class.__dict__[self.name], obj,
+                                            self.my_class)
             self.resolveDependants(method)
 
 class _DictKeyAndValue:

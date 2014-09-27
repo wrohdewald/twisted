@@ -6,6 +6,7 @@ Test cases for L{jelly} object serialization.
 """
 
 from twisted.python.compat import _PY3, get_imClass, get_imSelf
+from twisted.python.compat import unicode
 
 import datetime
 import decimal
@@ -14,8 +15,7 @@ from twisted.spread import jelly, pb
 from twisted.trial import unittest
 from twisted.test.proto_helpers import StringTransport
 
-
-class TestNode(object, jelly.Jellyable):
+class TestNode(jelly.Jellyable, object):
     """
     An object to test jellyfying of new style class instances.
     """
