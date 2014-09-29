@@ -7,7 +7,7 @@ Tests for error handling in PB.
 
 from __future__ import division, absolute_import
 
-from StringIO import StringIO
+from io import BytesIO
 
 from twisted.trial import unittest
 from twisted.spread import pb, flavors, jelly
@@ -462,7 +462,7 @@ class FailureJellyingTests(unittest.TestCase):
         """
         original = pb.CopyableFailure(Exception("some reason"))
         copied = jelly.unjelly(jelly.jelly(original, invoker=DummyInvoker()))
-        output = StringIO()
+        output = BytesIO()
         copied.printTraceback(output)
         self.assertEqual(
             "Traceback from remote host -- Traceback unavailable\n"
