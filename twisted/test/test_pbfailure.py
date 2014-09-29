@@ -113,10 +113,10 @@ class SimpleRoot(pb.Root):
         return d
 
     def raiseJelly(self, results=None):
-        raise JellyError("I'm jellyable!")
+        raise JellyError(b"I'm jellyable!")
 
     def raiseSecurity(self, results=None):
-        raise SecurityError("I'm secure!")
+        raise SecurityError(b"I'm secure!")
 
 
 
