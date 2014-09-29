@@ -68,7 +68,6 @@ from twisted.python.compat import _PY3, get_imFunc, get_imSelf, get_imClass
 
 # System Imports
 import pickle
-import types
 import warnings
 import decimal
 from functools import reduce
@@ -85,10 +84,11 @@ from types import DictionaryType
 from types import InstanceType
 from types import NoneType
 from types import ClassType
+from types import TypeType
+from types import BooleanType
 import copy
 
 import datetime
-from types import BooleanType
 
 if not _PY3:
     # Python 3 dropped the sets module
@@ -276,7 +276,7 @@ def setUnjellyableForClassTree(module, baseClass, prefix=None):
 
     for i in dir(module):
         i_ = getattr(module, i)
-        if type(i_) == types.ClassType:
+        if type(i_) == ClassType:
             if issubclass(i_, baseClass):
                 setUnjellyableForClass('%s%s' % (prefix, i), i_)
 
@@ -464,8 +464,8 @@ class _Jellier:
             self.preserved[id(object)] = sexp
         return sexp
 
-    constantTypes = {types.StringType : 1, types.IntType : 1,
-                     types.FloatType : 1, types.LongType : 1}
+    constantTypes = {StringType : 1, IntType : 1,
+                     FloatType : 1, LongType : 1}
 
 
     def _checkMutable(self,obj):
@@ -656,7 +656,7 @@ class _Unjellier:
 
 
     def unjelly(self, obj):
-        if type(obj) is not types.ListType:
+        if type(obj) is not ListType:
             return obj
         jelType = obj[0]
         if not self.taster.isTypeAllowed(jelType):
@@ -871,7 +871,7 @@ class _Unjellier:
 
     def _unjelly_module(self, rest):
         moduleName = rest[0]
-        if type(moduleName) != types.StringType:
+        if type(moduleName) != StringType:
             raise InsecureJelly(
                 "Attempted to unjelly a module with a non-string name.")
         if not self.taster.isModuleAllowed(moduleName):
@@ -888,7 +888,7 @@ class _Unjellier:
             raise InsecureJelly("module %s not allowed" % modName)
         klaus = namedObject(rest[0])
         objType = type(klaus)
-        if objType not in (types.ClassType, types.TypeType):
+        if objType not in (ClassType, TypeType):
             raise InsecureJelly(
                 "class %r unjellied to something that isn't a class: %r" % (
                     rest[0], klaus))
@@ -931,7 +931,7 @@ class _Unjellier:
             category=DeprecationWarning, filename="", lineno=0)
 
         clz = self.unjelly(rest[0])
-        if type(clz) is not types.ClassType:
+        if type(clz) is not ClassType:
             raise InsecureJelly("Instance found with non-class class.")
         if hasattr(clz, "__setstate__"):
             inst = _newInstance(clz, {})
@@ -956,7 +956,7 @@ class _Unjellier:
         im_name = rest[0]
         im_self = self.unjelly(rest[1])
         im_class = self.unjelly(rest[2])
-        if not isinstance(im_class, (type, types.ClassType)):
+        if not isinstance(im_class, (type, ClassType)):
             raise InsecureJelly("Method found with non-class class.")
         if im_name in im_class.__dict__:
             if im_self is None:
@@ -1074,11 +1074,11 @@ class SecurityOptions:
                              "time": 1,
                              "date": 1,
                              "timedelta": 1,
-                             "NoneType": 1}
-        self.allowedTypes['unicode'] = 1
-        self.allowedTypes['decimal'] = 1
-        self.allowedTypes['set'] = 1
-        self.allowedTypes['frozenset'] = 1
+                             "NoneType": 1,
+                             "unicode": 1,
+                             "decimal": 1,
+                             "set": 1,
+                             "frozenset": 1}
         self.allowedModules = {}
         self.allowedClasses = {}
 
@@ -1124,7 +1124,7 @@ class SecurityOptions:
         name. This will also allow the 'module' type.
         """
         for module in modules:
-            if type(module) == types.ModuleType:
+            if type(module) == ModuleType:
                 module = module.__name__
             self.allowedModules[module] = 1
 
