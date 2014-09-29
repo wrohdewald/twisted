@@ -699,6 +699,11 @@ class JellyDeprecationTests(unittest.TestCase):
             warnings[0]['category'],
             DeprecationWarning)
 
+    if _PY3:
+        # unjellying instance atoms is not supported for Python 3
+        test_deprecatedInstanceAtom.skip = "Not available in Python 3"
+        test_deprecatedUnjellyingInstanceAtom.skip = "Not available in Python 3"
+
 
 
 class ClassA(pb.Copyable, pb.RemoteCopy):
