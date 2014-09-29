@@ -5,6 +5,7 @@
 from __future__ import division, absolute_import
 
 import os, sys, errno, warnings
+import traceback
 try:
     import pwd, grp
 except ImportError:
@@ -1022,6 +1023,15 @@ def runWithWarningsSuppressed(suppressedWarnings, f, *args, **kwargs):
 
 
 
+def stack(msg, limit=6):
+    """returns a list of lines with msg as prefix"""
+    print(msg)
+    for idx, values in enumerate(traceback.extract_stack(limit=limit+2)[:-2]):
+        fileName, line, function, txt = values
+        print('---%2d: %s/%d %s: %s' % (idx, os.path.splitext(os.path.basename(fileName))[0],
+                                line, function, txt))
+
+
 __all__ = [
     "uniquify", "padTo", "getPluginDirs", "addPluginDir", "sibpath",
     "getPassword", "println", "makeStatBar", "OrderedDict",
@@ -1030,12 +1040,12 @@ __all__ = [
     "switchUID", "SubclassableCStringIO", "mergeFunctionMetadata",
     "nameToLabel", "uidFromString", "gidFromString", "runAsEffectiveUser",
     "untilConcludes",
-    "runWithWarningsSuppressed",
+    "runWithWarningsSuppressed", "stack"
     ]
 
 
 if _PY3:
-    __all3__ = ["FancyEqMixin", "untilConcludes",
+    __all3__ = ["FancyEqMixin", "untilConcludes", "stack",
                 "runWithWarningsSuppressed", "FancyStrMixin", "nameToLabel",
                 "InsensitiveDict", "padTo"]
     for name in __all__[:]:
