@@ -114,7 +114,7 @@ class Referenceable(Serializable):
         'remote_messagename' and call it with the same arguments.
         """
         args = broker.unserialize(args)
-        kw = broker.unserialize(kw)
+        kw = nativeStringDict(broker.unserialize(kw))
         method = getattr(self, "remote_%s" % nativeString(message), None)
         if method is None:
             raise NoSuchMethod("No such method: remote_%s" % (nativeString(message),))
@@ -365,15 +365,17 @@ class Cacheable(Copyable):
         getStateToCacheAndObserveFor.
         """
 
-def nativeIdentifierDict(state):
+def nativeStringDict(networkDict, encoding='ascii'):
     """
-    I get a dict from the wire (all bytes) where the keys will be
-    used as attribute names, so I convert all keys to nativeString
+    In a C{dict} received from the wire, all attributes are bytes.
+    Convert them to the native string type.
+
+    @param networkDict: Any C{dict}. Keys must be C{bytes} or C{unicode}.
+    @param encoding: The encoding for the given keys.
+    @return: The passed dict, but all keys converted with nativeString().
     """
-    result = {}
-    for k, v in state.items():
-        result[nativeString(k)] = v
-    return result
+    return dict((nativeString(key, encoding), value)
+        for key, value in networkDict.items())
 
 
 
@@ -398,7 +400,7 @@ class RemoteCopy(Unjellyable):
         object's dictionary (or a filtered approximation of it depending
         on my peer's perspective).
         """
-        self.__dict__ = nativeIdentifierDict(state)
+        self.__dict__ = nativeStringDict(state)
 
     def unjellyFor(self, unjellier, jellyList):
         if unjellier.invoker is None:
