@@ -72,8 +72,20 @@ class BananaTestBase(unittest.TestCase):
     encClass = banana.Banana
 
     def setUp(self):
+        """
+        The default test environment is for a client
+        """
+        self._setUp(isClient=True)
+
+
+    def _setUp(self, isClient=True):
+        """
+        Prepare the test environment.
+
+        @param isClient: The role that self.enc (banana.Banana) should take.
+        """
         self.io = StringIO.StringIO()
-        self.enc = self.encClass()
+        self.enc = self.encClass(isClient)
         self.enc.makeConnection(protocol.FileWrapper(self.io))
         selectDialect(self.enc, b"none")
         self.enc.expressionReceived = self.putResult
@@ -152,6 +164,107 @@ class BananaTestCase(BananaTestBase):
         self.assertIn("Banana cannot send {0} objects".format(name), str(exc))
 
 
+    def test_connectServer(self):
+        """
+        When a client connects to a Banana server, the Banana server
+        sends it an encoded list of supported dialects.
+        """
+        self.dataFromServer = None
+        def serverSendEncoded(s):
+            self.dataFromServer = s
+        self._setUp(isClient=False)
+        # catch answer from server
+        clientSendEncoded = self.enc.sendEncoded
+        self.enc.sendEncoded = serverSendEncoded
+        self.enc.makeConnection(protocol.FileWrapper(self.io))
+        self.assertEqual(self.dataFromServer, [b'pb', b'none'])
+
+
+    def test_noExpressionReceivedHook(self):
+        """
+        The implementation for a dialect other than 'none' must
+        override Banana.expressionReceived with a dialect specific
+        implementation.
+        Otherwise Banana.expressionReceived will raise NotImplementedError.
+        """
+        # setUp did just that
+        self.assertTrue(self.enc.expressionReceived)
+        # now we don't
+        self.assertRaises(NotImplementedError,
+            self.encClass().expressionReceived, b'x')
+
+
+    def test_clientSelectsWrongDialect(self):
+        """
+        The client must select one of the dialects offered by the server.
+        Otherwise the server closes the connection.
+        """
+        self._setUp(isClient=False)
+        self.enc.currentDialect = None
+        self.enc.sendEncoded(b'abc') # client sends abc to server
+        self.enc.dataReceived(self.io.getvalue())
+        self.assertTrue(self.io.closed) # if server gets back wrong dialect, it closes
+        self.assertEqual(getattr(self, 'result', 'NO_RESULT'), 'NO_RESULT')
+
+
+    def test_clientSupportNoDialect(self):
+        """
+        If the client gets only unimplemented dialects from the server,
+        it leaves currentDialect as None and closes the connection.
+        """
+        self.assertTrue(self.enc.isClient)
+        self.enc.currentDialect = None
+        self.enc.sendEncoded([b'px'])
+        self.enc.dataReceived(self.io.getvalue())
+        self.assertIs(self.enc.currentDialect, None)
+        self.assertTrue(self.io.closed)
+
+
+    def test_clientSelectsCorrectDialect(self):
+        """
+        The client selects one of the dialects offered by the server
+        and returns its choice to the server. This test is for the
+        server side receiving the correct selection.
+        """
+        self._setUp(isClient=False)
+        self.enc.currentDialect = None
+        self.enc.sendEncoded(b'pb') # client sends dialect pb to server
+        self.enc.dataReceived(self.io.getvalue())
+        # server sets the dialect selected by client
+        self.assertEqual(b'pb', self.enc.currentDialect)
+        # server does not further process the received message
+        self.assertEqual(getattr(self, 'result', 'NO_RESULT'), 'NO_RESULT')
+
+
+    def test_startWithRightDialect(self):
+        """
+        The client selects the first offered dialect which is implemented
+        and returns it to the server. This test is for the client side
+        selecting the correct dialect.
+        """
+        self.dataFromClient = None
+        def sendEncoded(s):
+            self.dataFromClient = s
+        self.enc.currentDialect = None
+        self.enc.sendEncoded([b'abc', b'pb', b'def'])
+        self.enc.sendEncoded = sendEncoded
+        # dataReceived chooses one of the received dialects and returns it
+        # by calling sendEncoded
+        self.enc.dataReceived(self.io.getvalue())
+        self.assertEqual(self.dataFromClient, b'pb')
+        self.assertEqual(self.enc.currentDialect, b'pb')
+
+
+    def test_bytes(self):
+        """
+        Sending and receiving a byte string must not change it
+        """
+        foo = b'hello'
+        self.enc.sendEncoded(foo)
+        self.enc.dataReceived(self.io.getvalue())
+        self.assertEqual(self.result, foo)
+
+
     def test_int(self):
         """
         A positive integer less than 2 ** 32 should round-trip through
@@ -163,6 +276,36 @@ class BananaTestCase(BananaTestBase):
             self.enc.dataReceived(self.io.getvalue())
             self.assertEqual(self.result, 10151)
             self.assertIsInstance(self.result, int)
+
+
+    def test_couldNotSend(self):
+        """
+        Only a few basic types are sendable. For others,
+        Banana raises BananaError.
+        """
+        self.assertRaises(banana.BananaError, self.enc.sendEncoded, BananaTestCase)
+
+
+    def test_encodeTooLargeStr(self):
+        """
+        Strings have a maximum length. If too long, Banana.sendEncoded raises
+        BananaError.
+        """
+        data = b'a' * (banana.SIZE_LIMIT)
+        self.enc.sendEncoded(data)
+        data = b'a' * (banana.SIZE_LIMIT+1)
+        self.assertRaises(banana.BananaError, self.enc.sendEncoded, data)
+
+
+    def test_encodeTooLargeList(self):
+        """
+        Lists have a maximum length. If too long, Banana.sendEncoded raises
+        BananaError.
+        """
+        # data = list(b'a' * (banana.SIZE_LIMIT)) This takes 4 seconds, not important
+        # self.enc.sendEncoded(data)
+        data = list(b'a' * (banana.SIZE_LIMIT+1))
+        self.assertRaises(banana.BananaError, self.enc.sendEncoded, data)
 
 
     def test_largeLong(self):
@@ -204,6 +347,22 @@ class BananaTestCase(BananaTestBase):
         """
         smallest = self._getSmallest()
         self.assertRaises(banana.BananaError, self.enc.sendEncoded, smallest)
+
+
+    def test_decodeTooLargePrefix(self):
+        """
+        The size of the prefix has a maximum. If too long,
+        Banana.dataReceived raises BananaError.
+        """
+        oldLimit = self.enc.prefixLimit
+        try:
+            self.enc.setPrefixLimit(13)
+            data = b'x' * 13
+            self.enc.dataReceived(data)
+            data = b'x' * 14
+            self.assertRaises(banana.BananaError, self.enc.dataReceived, data)
+        finally:
+            self.enc.setPrefixLimit(oldLimit)
 
 
     def test_decodeTooLargeLong(self):
@@ -435,3 +594,4 @@ class GlobalCoderTests(unittest.TestCase):
         # previous call passed un-decodable data and triggered an exception.
         decodable = b'\x01\x81'
         self.assertEqual(banana.decode(decodable), 1)
+        self.assertEqual(banana.encode(1), decodable)
