@@ -11,6 +11,8 @@ only specific tests for old API.
 # issue1195 TODOs: replace pump.pump() with something involving Deferreds.
 # Clean up warning suppression.
 
+from twisted.python.compat import get_imSelf
+
 import sys, os, time, gc, weakref
 
 from cStringIO import StringIO
@@ -710,7 +712,7 @@ class BrokerTestCase(unittest.TestCase):
         self.assertEqual(complex[0].foo, 4)
         self.assertEqual(len(coll), 2)
         cp = coll[0][0]
-        self.assertIdentical(cp.checkMethod().im_self, cp,
+        self.assertIdentical(get_imSelf(cp.checkMethod()), cp,
                              "potential refcounting issue")
         self.assertIdentical(cp.checkSelf(), cp,
                              "other potential refcounting issue")

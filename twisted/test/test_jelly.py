@@ -5,7 +5,7 @@
 Test cases for L{jelly} object serialization.
 """
 
-from twisted.python.compat import _PY3
+from twisted.python.compat import _PY3, get_imClass, get_imSelf
 
 import datetime
 import decimal
@@ -174,7 +174,7 @@ class JellyTestCase(unittest.TestCase):
         a.bmethod = b.bmethod
         b.a = a
         im_ = jelly.unjelly(jelly.jelly(b)).a.bmethod
-        self.assertEqual(im_.im_class, im_.im_self.__class__)
+        self.assertEqual(get_imClass(im_), get_imSelf(im_).__class__)
 
 
     def test_methodSelfIdentityNewStyle(self):
@@ -188,7 +188,7 @@ class JellyTestCase(unittest.TestCase):
         a.bmethod = b.bmethod
         b.a = a
         im_ = jelly.unjelly(jelly.jelly(b)).a.bmethod
-        self.assertIs(im_.im_class, im_.im_self.__class__)
+        self.assertIs(get_imClass(im_), get_imSelf(im_).__class__)
 
 
     def test_methodsNotSelfIdentity(self):

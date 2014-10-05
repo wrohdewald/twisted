@@ -64,7 +64,7 @@ The same rule applies for C{frozenset} and C{sets.ImmutableSet}.
 
 from __future__ import division, absolute_import
 
-from twisted.python.compat import _PY3
+from twisted.python.compat import _PY3, get_imFunc, get_imSelf, get_imClass
 
 # System Imports
 import pickle
@@ -477,6 +477,7 @@ class _Jellier:
             return self.cooked[objId]
 
 
+
     def jelly(self, obj):
         if isinstance(obj, Jellyable):
             preRef = self._checkMutable(obj)
@@ -491,12 +492,23 @@ class _Jellier:
                 (objType is LongType) or
                 (objType is FloatType)):
                 return obj
-            elif objType is MethodType:
+            if _PY3 and objType is FunctionType:
+                # unbound method in Python 3 is identical with a function
+                # but we can still find its class.
+                try:
+                    im_class = get_imClass(obj)
+                except AttributeError:
+                    im_class = None
+                if im_class:
+                    return ["method",
+                        obj.__name__.encode(),
+                        [none_atom],
+                        self.jelly(im_class)]
+            if objType is MethodType:
                 return ["method",
-                        obj.im_func.__name__,
-                        self.jelly(obj.im_self),
-                        self.jelly(obj.im_class)]
-
+                        get_imFunc(obj).__name__,
+                        self.jelly(get_imSelf(obj)),
+                        self.jelly(get_imClass(obj))]
             elif objType is unicode:
                 return ['unicode', obj.encode('UTF-8')]
             elif objType is NoneType:
