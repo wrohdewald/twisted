@@ -990,9 +990,13 @@ class Broker(banana.Banana):
                 self.security.isClassAllowed(fail.value.__class__)):
                 fail = fail.value
             elif not isinstance(fail, CopyableFailure):
-                fail = failure2Copyable(fail, self.factory.unsafeTracebacks)
+                if self.factory: # in tests we won't have factory
+                    fail = failure2Copyable(fail, self.factory.unsafeTracebacks)
+                else:
+                    fail = failure2Copyable(fail)
         if isinstance(fail, CopyableFailure):
-            fail.unsafeTracebacks = self.factory.unsafeTracebacks
+            if self.factory: # in tests we won't have factory
+                fail.unsafeTracebacks = self.factory.unsafeTracebacks
         self.sendCall(error_atom, requestID, self.serialize(fail))
 
     def proto_error(self, requestID, fail):
