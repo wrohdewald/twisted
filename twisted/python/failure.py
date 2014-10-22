@@ -495,7 +495,7 @@ class Failure:
         exception instance to C{None}.
         """
         self.__dict__ = self.__getstate__()
-        if _PY3:
+        if _PY3 and getattr(self.value, '__traceback__', None):
             self.value.__traceback__ = None
 
 
@@ -517,7 +517,12 @@ class Failure:
             return None
 
     def getErrorMessage(self):
-        """Get a string of the exception which caused this Failure."""
+        """
+        Get a string of the exception which caused this Failure.
+        
+        @returns: The string of the exception.
+        @rtype: C{str}
+        """
         if isinstance(self.value, Failure):
             return self.value.getErrorMessage()
         return reflect.safe_str(self.value)
