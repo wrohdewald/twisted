@@ -439,6 +439,14 @@ def safe_str(o):
             return o.decode('utf-8')
         except:
             pass
+    if not _PY3:
+        # if the other side of the wire runs Python 3,
+        # we might get non-ascii strings but _safeFormat
+        # should always return ascii. Otherwise
+        # the caller would have to guess the encoding
+        # TODO: concrete example
+        if isinstance(o, unicode):
+            return str(o.decode('ascii', 'ignore'))
     try:
         return str(o)
     except:
