@@ -30,7 +30,7 @@ To get started, begin with L{PBClientFactory} and L{PBServerFactory}.
 from __future__ import division, absolute_import
 
 from twisted.python.compat import xrange, networkString, nativeString
-from twisted.python.compat import nativeString
+from twisted.python.compat import nativeString, _PY3
 from twisted.python.compat import unicode, networkChar
 from twisted.python.util import FancyEqMixin
 
@@ -436,7 +436,10 @@ class CopyableFailure(failure.Failure, Copyable):
         state['tb'] = None
         state['frames'] = []
         state['stack'] = []
-        state['value'] = str(self.value) # Exception instance
+        if isinstance(self.value, (bytes, unicode)):
+            state['value'] = nativeString(self.value, encoding='utf-8') # Exception instance
+        else:
+            state['value'] = str(self.value)
         if isinstance(self.type, str):
             state['type'] = self.type
         else:
@@ -471,7 +474,7 @@ class CopiedFailure(RemoteCopy, failure.Failure):
         file.write("Traceback from remote host -- ")
         file.write(nativeString(self.traceback, encoding='utf-8'))
         msg = "{0}: {1}".format(
-            nativeString(self.type),
+            nativeString(str(self.type)),
             nativeString(self.value, encoding='utf-8'))
         file.write(msg)
         file.write('\n')
@@ -1005,6 +1008,14 @@ class Broker(banana.Banana):
         d = self.waitingForAnswers[requestID]
         del self.waitingForAnswers[requestID]
         d.errback(self.unserialize(fail))
+# this would make test_pbfailure hang forever
+#        unserFail = self.unserialize(fail)
+#        if isinstance(unserFail.type, str):
+#            if _PY3:
+#                if unserFail.parents[-3] == 'builtins.Exception':
+#                    unserFail.type = reflect.namedObject(unserFail.parents[0])
+#                    unserFail.value = unserFail.type((nativeString(unserFail.value, encoding='utf-8')))
+#        d.errback(unserFail)
 
     ##
     # refcounts
