@@ -359,6 +359,8 @@ def qual(clazz):
     """
     Return full import path of a class.
     """
+    if getattr(clazz, '__module__', None) is None:
+        return str(clazz)
     return clazz.__module__ + '.' + clazz.__name__
 
 
