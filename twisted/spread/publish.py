@@ -10,6 +10,8 @@ Maintainer: Glyph Lefkowitz
 Future Plans: None known.
 """
 
+from __future__ import division, absolute_import
+
 import time
 
 from twisted.internet import defer
