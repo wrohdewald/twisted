@@ -8,6 +8,8 @@
 Utility classes for spread.
 """
 
+from __future__ import division, absolute_import
+
 from twisted.internet import defer
 from twisted.python.failure import Failure
 from twisted.spread import pb
