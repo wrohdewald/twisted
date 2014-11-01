@@ -16,6 +16,8 @@ but may have a small impact on users who subclass and override methods.
 @author: Glyph Lefkowitz
 """
 
+from __future__ import division, absolute_import
+
 # NOTE: this module should NOT import pb; it is supposed to be a module which
 # abstractly defines remotely accessible types.  Many of these types expect to
 # be serialized by Jelly, but they ought to be accessible through other
