@@ -27,6 +27,8 @@ To get started, begin with L{PBClientFactory} and L{PBServerFactory}.
 @author: Glyph Lefkowitz
 """
 
+from __future__ import division, absolute_import
+
 import random
 import types
 from hashlib import md5
