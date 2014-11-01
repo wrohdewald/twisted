@@ -804,7 +804,7 @@ class BrokerTestCase(unittest.TestCase):
             "ID not correct on factory object %s" % (self.thunkResult,))
 
 
-bigString = "helloworld" * 50
+bigString = b"helloworld" * 50
 
 callbackArgs = None
 callbackKeyword = None
@@ -866,7 +866,7 @@ class PagingTestCase(unittest.TestCase):
         util.getAllPages(x, "getPages").addCallback(l.append)
         while not l:
             pump.pump()
-        self.assertEqual(''.join(l[0]), bigString,
+        self.assertEqual(b''.join(l[0]), bigString,
                           "Pages received not equal to pages sent!")
         self.assertEqual(callbackArgs, ('hello',),
                           "Completed callback not invoked")
@@ -885,7 +885,7 @@ class PagingTestCase(unittest.TestCase):
         util.getAllPages(x, "getPages").addCallback(l.append)
         while not l:
             pump.pump()
-        self.assertEqual(''.join(l[0]), bigString,
+        self.assertEqual(b''.join(l[0]), bigString,
                           "Pages received not equal to pages sent!")
 
 
@@ -926,7 +926,7 @@ class PagingTestCase(unittest.TestCase):
         util.getAllPages(x, "getPages").addCallback(l.append)
         while not l:
             pump.pump()
-        self.assertEqual(''.join(l[0]), bigString,
+        self.assertEqual(b''.join(l[0]), bigString,
                           "Pages received not equal to pages sent!")
         self.assertEqual(callbackArgs, ('frodo',),
                           "Completed callback not invoked")
@@ -947,7 +947,7 @@ class PagingTestCase(unittest.TestCase):
         util.getAllPages(x, "getPages").addCallback(l.append)
         while not l:
             pump.pump()
-        self.assertEqual(''.join(l[0]), bigString,
+        self.assertEqual(b''.join(l[0]), bigString,
                           "Pages received not equal to pages sent!")
         self.assertEqual(pagerizer.pager.chunks, [])
 
@@ -1547,7 +1547,7 @@ class NewCredTestCase(unittest.TestCase):
         rejected.
         """
         self.portal.registerChecker(
-            checkers.InMemoryUsernamePasswordDatabaseDontUse(user='pass'))
+            checkers.InMemoryUsernamePasswordDatabaseDontUse(user=b'pass'))
         factory = pb.PBClientFactory()
         d = factory.login(credentials.Anonymous(), BRAINS)
         self.assertFailure(d, UnhandledCredentials)

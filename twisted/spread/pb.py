@@ -168,7 +168,7 @@ class RemoteMethod(FancyEqMixin):
         """
         Asynchronously invoke a remote method.
         """
-        return self.obj.broker._sendMessage('',self.obj.perspective,
+        return self.obj.broker._sendMessage(b'',self.obj.perspective,
             self.obj.luid, self.name, args, kw)
 
 
@@ -355,7 +355,7 @@ class RemoteReference(Serializable, styles.Ephemeral):
         # remote methods with 'name' as a keyword parameter, like this:
         #  ref.callRemote("getPeopleNamed", count=12, name="Bob")
 
-        return self.broker._sendMessage('',self.perspective, self.luid,
+        return self.broker._sendMessage(b'',self.perspective, self.luid,
                                         _name, args, kw)
 
     def remoteMethod(self, key):
@@ -1082,7 +1082,7 @@ def respond(challenge, password):
 
 def challenge():
     """I return some random data."""
-    crap = ''
+    crap = b''
     for x in range(random.randrange(15,25)):
         crap = crap + chr(random.randint(65,90))
     crap = md5(crap).digest()
