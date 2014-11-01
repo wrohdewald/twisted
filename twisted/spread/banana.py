@@ -12,6 +12,8 @@ for more details.
 @author: Glyph Lefkowitz
 """
 
+from __future__ import division, absolute_import
+
 import copy, cStringIO, struct
 
 from twisted.python.compat import _PY3, networkChar
