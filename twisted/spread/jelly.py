@@ -65,27 +65,43 @@ The same rule applies for C{frozenset} and C{sets.ImmutableSet}.
 from __future__ import division, absolute_import
 
 from twisted.python.compat import _PY3, get_imFunc, get_imSelf, get_imClass
+from twisted.python.compat import nativeString
 
 # System Imports
 import pickle
 import warnings
 import decimal
 from functools import reduce
-from types import StringType
-from types import IntType
-from types import TupleType
-from types import ListType
-from types import LongType
-from types import FloatType
+if _PY3:
+    StringType = bytes
+    IntType = int
+    LongType = int
+    TupleType = tuple
+    ListType = list
+    FloatType = float
+    TypeType = type
+    NoneType = type(None)
+    ClassType = type # TODO: identical with TypeType
+    DictionaryType = dict
+    InstanceType = object # TODO: see http://bugs.python.org/issue8206
+    BooleanType = bool
+else:
+    from types import StringType
+    assert str is StringType
+    from types import IntType
+    from types import LongType
+    from types import TupleType
+    from types import ListType
+    from types import FloatType
+    from types import TypeType
+    from types import NoneType
+    from types import ClassType
+    from types import DictionaryType
+    from types import InstanceType
+    from types import BooleanType
 from types import FunctionType
 from types import MethodType
 from types import ModuleType
-from types import DictionaryType
-from types import InstanceType
-from types import NoneType
-from types import ClassType
-from types import TypeType
-from types import BooleanType
 import copy
 
 import datetime
@@ -490,7 +506,6 @@ class _Jellier:
             return self.cooked[objId]
 
 
-
     def jelly(self, obj):
         if isinstance(obj, Jellyable):
             preRef = self._checkMutable(obj)
@@ -506,8 +521,6 @@ class _Jellier:
                 (objType is FloatType)):
                 return obj
             if _PY3 and objType is FunctionType:
-                # unbound method in Python 3 is identical with a function
-                # but we can still find its class.
                 try:
                     im_class = get_imClass(obj)
                 except AttributeError:
@@ -677,7 +690,7 @@ class _Unjellier:
             raise InsecureJelly(jelType)
         regClass = unjellyableRegistry.get(jelType)
         if regClass is not None:
-            if isinstance(regClass, ClassType):
+            if not _PY3 and isinstance(regClass, ClassType):
                 inst = _Dummy() # XXX chomp, chomp
                 inst.__class__ = regClass
                 method = inst.unjellyFor
@@ -885,7 +898,7 @@ class _Unjellier:
 
     def _unjelly_module(self, rest):
         moduleName = rest[0]
-        if type(moduleName) != StringType:
+        if not isinstance(moduleName, bytes):
             raise InsecureJelly(
                 "Attempted to unjelly a module with a non-string name.")
         if not self.taster.isModuleAllowed(moduleName):
@@ -978,7 +991,10 @@ class _Unjellier:
             elif isinstance(im_self, NotKnown):
                 im = _InstanceMethod(im_name, im_self, im_class)
             else:
-                im = MethodType(im_class.__dict__[im_name], im_self, im_class)
+                if _PY3:
+                    im = MethodType(im_class.__dict__[im_name], im_self)
+                else:
+                    im = MethodType(im_class.__dict__[im_name], im_self, im_class)
         else:
             raise TypeError('instance method changed')
         return im
@@ -1147,6 +1163,8 @@ class SecurityOptions:
         """
         SecurityOptions.isModuleAllowed(moduleName) -> boolean
         returns 1 if a module by that name is allowed, 0 otherwise
+
+        @param moduleName: C{str}
         """
         return moduleName in self.allowedModules
 
@@ -1156,6 +1174,8 @@ class SecurityOptions:
         SecurityOptions.isClassAllowed(class) -> boolean
         Assumes the module has already been allowed.  Returns 1 if the given
         class is allowed, 0 otherwise.
+
+        @param klass: C{type}
         """
         return klass in self.allowedClasses
 
@@ -1164,7 +1184,10 @@ class SecurityOptions:
         """
         SecurityOptions.isTypeAllowed(typeName) -> boolean
         Returns 1 if the given type is allowed, 0 otherwise.
+
+        @param typeName: C{bytes}
         """
+        typeName = nativeString(typeName)
         return (typeName in self.allowedTypes or '.' in typeName)
 
 
