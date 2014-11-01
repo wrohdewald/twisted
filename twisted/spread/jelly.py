@@ -804,7 +804,7 @@ class _Unjellier:
 
 
     def _unjelly_tuple(self, lst):
-        l = range(len(lst))
+        l = list(range(len(lst)))
         finished = 1
         for elem in l:
             if isinstance(self.unjellyInto(l, elem, lst[elem]), NotKnown):
@@ -816,7 +816,7 @@ class _Unjellier:
 
 
     def _unjelly_list(self, lst):
-        l = range(len(lst))
+        l = list(range(len(lst)))
         for elem in l:
             self.unjellyInto(l, elem, lst[elem])
         return l
@@ -831,7 +831,7 @@ class _Unjellier:
 
         @param containerType: the type of C{set} to use.
         """
-        l = range(len(lst))
+        l = list(range(len(lst)))
         finished = True
         for elem in l:
             data = self.unjellyInto(l, elem, lst[elem])
