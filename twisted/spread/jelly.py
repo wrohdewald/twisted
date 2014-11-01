@@ -62,6 +62,8 @@ The same rule applies for C{frozenset} and C{sets.ImmutableSet}.
 @author: Glyph Lefkowitz
 """
 
+from __future__ import division, absolute_import
+
 from twisted.python.compat import _PY3
 
 # System Imports
