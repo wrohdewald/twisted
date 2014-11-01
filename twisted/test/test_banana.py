@@ -135,7 +135,7 @@ class BananaTestCase(BananaTestBase):
         assert self.result == foo, "%s!=%s" % (repr(self.result), repr(foo))
 
 
-    def test_unsupportedUnicode(self):
+    def test_unsupportedUnicode_2(self):
         """
         Banana does not support unicode.  ``Banana.sendEncoded`` raises
         ``BananaError`` if called with an instance of ``unicode``.
@@ -143,7 +143,15 @@ class BananaTestCase(BananaTestBase):
         self._unsupportedTypeTest(u"hello", "__builtin__.unicode")
 
 
-    def test_unsupportedBuiltinType(self):
+    def test_unsupportedUnicode_3(self):
+        """
+        Banana does not support unicode.  ``Banana.sendEncoded`` raises
+        ``BananaError`` if called with an instance of ``unicode``.
+        """
+        self._unsupportedTypeTest("hello", "builtins.str")
+
+
+    def test_unsupportedBuiltinType_2(self):
         """
         Banana does not support arbitrary builtin types like L{type}.
         L{banana.Banana.sendEncoded} raises L{banana.BananaError} if called
@@ -151,6 +159,27 @@ class BananaTestCase(BananaTestBase):
         """
         # type is an instance of type
         self._unsupportedTypeTest(type, "__builtin__.type")
+
+
+    def test_unsupportedBuiltinType_3(self):
+        """
+        Banana does not support arbitrary builtin types like L{type}.
+        L{banana.Banana.sendEncoded} raises L{banana.BananaError} if called
+        with an instance of L{type}.
+        """
+        # type is an instance of type
+        self._unsupportedTypeTest(type, "builtins.type")
+
+    if _PY3:
+        test_unsupportedUnicode_2.skip = (
+            "Skip Python 2 specific test for unsupported unicode")
+        test_unsupportedBuiltinType_2.skip = (
+            "Skip Python 2 specific test for unsupported builtin types")
+    else:
+        test_unsupportedUnicode_3.skip = (
+            "Skip Python 3 specific test for unsupported unicode")
+        test_unsupportedBuiltinType_3.skip = (
+            "Skip Python 3 specific test for unsupported builtin types")
 
 
     def test_unsupportedUserType(self):
