@@ -14,6 +14,7 @@ for more details.
 
 import copy, cStringIO, struct
 
+from twisted.python.compat import _PY3, networkChar
 from twisted.internet import protocol
 from twisted.persisted import styles
 from twisted.python import log
@@ -24,11 +25,11 @@ class BananaError(Exception):
 
 def int2b128(integer, stream):
     if integer == 0:
-        stream(chr(0))
+        stream(networkChar(0))
         return
     assert integer > 0, "can only encode positive integers"
     while integer:
-        stream(chr(integer & 0x7f))
+        stream(networkChar(integer & 0x7f))
         integer = integer >> 7
 
 
@@ -51,20 +52,19 @@ def b1282int(st):
         e <<= 7
     return i
 
-
 # delimiter characters.
-LIST     = chr(0x80)
-INT      = chr(0x81)
-STRING   = chr(0x82)
-NEG      = chr(0x83)
-FLOAT    = chr(0x84)
+LIST     = networkChar(0x80)
+INT      = networkChar(0x81)
+STRING   = networkChar(0x82)
+NEG      = networkChar(0x83)
+FLOAT    = networkChar(0x84)
 # "optional" -- these might be refused by a low-level implementation.
-LONGINT  = chr(0x85)
-LONGNEG  = chr(0x86)
+LONGINT  = networkChar(0x85)
+LONGNEG  = networkChar(0x86)
 # really optional; this is part of the 'pb' vocabulary
-VOCAB    = chr(0x87)
+VOCAB    = networkChar(0x87)
 
-HIGH_BIT_SET = chr(0x80)
+HIGH_BIT_SET = int(0x80) if _PY3 else chr(0x80)
 
 def setPrefixLimit(limit):
     """

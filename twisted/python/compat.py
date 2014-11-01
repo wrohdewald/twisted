@@ -429,6 +429,10 @@ if _PY3:
         if not isinstance(s, unicode):
             raise TypeError("Can only convert text to bytes on Python 3")
         return s.encode('ascii')
+
+    def networkChar(ordinal):
+        return bytes([ordinal])
+
 else:
     def iterbytes(originalBytes):
         return originalBytes
@@ -446,6 +450,16 @@ else:
         # Ensure we're limited to ASCII subset:
         s.decode('ascii')
         return s
+
+    def networkChar(ordinal):
+        if isinstance(ordinal, str):
+            # in Python2, b'abc'[2] returns str. Some pb tests feed
+            # networkChar that way. This cannot happen in Python3
+            # because b'abc'[2] will return ord('b')
+            assert len(ordinal) == 1, ordinal
+            return ordinal
+        else:
+            return chr(ordinal)
 
 iterbytes.__doc__ = """
 Return an iterable wrapper for a C{bytes} object that provides the behavior of
@@ -485,6 +499,15 @@ interpolation.  For example, this is safe on Python 2 and Python 3:
 @rtype: C{bytes}
 """
 
+networkChar.__doc__ = """
+Convert an ordinal value into C{bytes} with length 1.
+This is useful for hiding a difference between Python 2 and 3:
+b'abc'[2] will return b'b' for Python 2 but 98 for Python 3.
+
+@param integer: The C{int} to convert to C{bytes}.
+@type integer: C{int} or (python2 only) C{bytes} with length 1
+@rtype: C{bytes}
+"""
 
 try:
     StringType = basestring

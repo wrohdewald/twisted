@@ -15,7 +15,7 @@ from twisted.trial import unittest
 from twisted.python.compat import (
     reduce, execfile, _PY3, comparable, cmp, nativeString, networkString,
     unicode as unicodeCompat, lazyByteSlice, reraise, NativeStringIO,
-    iterbytes, intToBytes, ioType
+    iterbytes, intToBytes, networkChar, ioType
 )
 from twisted.python.filepath import FilePath
 
@@ -730,3 +730,44 @@ class Python3BytesTests(unittest.SynchronousTestCase):
         """
         data = b'123XYZ'
         self.assertEqual(bytes(lazyByteSlice(data, 2, 3)), data[2:5])
+
+
+
+class networkCharTests(unittest.SynchronousTestCase):
+    """
+    Tests for L{networkChar}
+    """
+
+    ordinalB = 66
+
+    def test_networkChar_2(self):
+        """
+        When L{networkChar} is called with an int, it returns bytes with
+        length 1.
+        """
+        self.assertEqual(networkChar(self.ordinalB), chr(self.ordinalB))
+
+
+    def test_networkCharWithStr_2(self):
+        """
+        When L{networkChar} is called with bytes, lenght == 1, it
+        returns just that.
+        """
+        self.assertEqual(networkChar('B'), chr(self.ordinalB))
+
+
+    def test_networkChar_3(self):
+        """
+        When L{networkChar} is called with an int, it returns bytes with
+        length 1.
+        """
+        self.assertEqual(networkChar(self.ordinalB), chr(self.ordinalB))
+        self.assertEqual(networkChar(self.ordinalB), b'B')
+
+
+    if _PY3:
+        test_networkChar_2.skip = test_networkCharWithStr_2 = (
+            "Skip Python 3 specific test for networkChar")
+    else:
+        test_networkChar_3.skip = (
+            "Skip Python 2 specific test for networkChar")
