@@ -16,6 +16,8 @@ from twisted.python.compat import (
     reduce, execfile, _PY3, comparable, cmp, nativeString, networkString,
     unicode as unicodeCompat, long as longCompat, xrange as xrangeCompat,
     lazyByteSlice, reraise, NativeStringIO,
+    iterbytes, intToBytes, networkChar, ioType,
+    get_imFunc, get_imSelf, get_imClass
 )
 from twisted.python.filepath import FilePath
 
@@ -798,3 +800,103 @@ class networkCharTests(unittest.SynchronousTestCase):
     else:
         test_networkChar_3.skip = (
             "Skip Python 2 specific test for networkChar")
+
+
+
+class Get_ImTests_3(unittest.SynchronousTestCase):
+    """
+    Tests for L{get_imFunc}, L{get_imSelf}, L{get_imClass}
+    """
+
+    class A:
+       """
+       Helper class for the tests
+       """
+
+       def method(self):
+          pass
+
+
+    def test_imFuncBoundMethod(self):
+        """
+        L{get_imFunc} returns the function of a method.
+        """
+        a = self.A()
+        self.assertIn('<function Get_ImTests_3.A.method at',
+            str(get_imFunc(a.method)))
+
+
+    def test_imFuncUnboundMethod(self):
+        """
+        L{get_imFunc} returns the function of a method.
+        """
+        self.assertIn('<function Get_ImTests_3.A.method at',
+            str(get_imFunc(self.A.method)))
+
+
+    def test_imFuncAnything(self):
+        """
+        L{get_imFunc} returns the function of a method.
+        """
+        self.assertRaises(AttributeError, get_imFunc, str)
+
+
+    def test_imSelfBoundMethod(self):
+        """
+        L{get_imSelf} returns the object the method is bound to.
+        """
+        a = self.A()
+        self.assertIdentical(a, get_imSelf(a.method))
+
+
+    def test_imSelfUnboundMethod(self):
+        """
+        L{get_imSelf} returns None for an unbound method
+        """
+        self.assertIdentical(None, get_imSelf(self.A.method))
+
+
+    def test_imSelfAnything(self):
+        """
+        L{get_imSelf} returns None for any other object.
+        """
+        self.assertIdentical(None, get_imSelf(str))
+
+
+    def test_imClassBoundMethod(self):
+        """
+        L{get_imClass} returns the class of the object the method is bound to.
+        """
+        a = self.A()
+        self.assertIdentical(self.A, get_imClass(a.method))
+
+
+    def test_imClassUnboundMethod(self):
+        """
+        L{get_imClass} returns the class defining the method.
+        """
+        self.assertIdentical(Get_ImTests_3, get_imClass(self.test_imClassUnboundMethod))
+
+
+    def test_imClassUnboundMethodNested(self):
+        """
+        L{get_imClass} returns the class defining the method. Nested classes
+        are not supported for Python 3.
+        """
+        self.assertRaises(AttributeError, get_imClass, self.A.method)
+
+
+    def test_imClassAnything(self):
+        """
+        L{get_imClass} raises AttributeError for non-class objects.
+        """
+        self.assertRaises(AttributeError, get_imClass, str)
+
+
+
+if not _PY3:
+    # On Python 2, those functions directly return the corresponding attributes.
+    # Introducing those wrappers get_imFunc etc does not change anything for
+    # Python2. We only need them because Python 3 does not offer those attributes
+    # anymore.
+    Get_ImTests_3.skip = "Python 3 only."

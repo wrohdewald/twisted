@@ -22,6 +22,7 @@ from __future__ import division
 
 import sys, string, socket, struct, inspect
 from io import TextIOBase, IOBase
+from types import FunctionType
 
 
 if sys.version_info < (3, 0):
@@ -531,6 +532,81 @@ except ImportError:
     FileType = IOBase
 
 
+
+if _PY3:
+    def get_imFunc(method):
+        try:
+            return method.__func__
+        except AttributeError:
+            if isinstance(method, FunctionType):
+                # we got an "unbound method" which does
+                # not exist anymore with Python 3
+                return method
+            else:
+                raise
+
+
+    def get_imSelf(method):
+        # an unbound method is identical with an function, 
+        # In Python3, it has no __self__ attribute.
+        # In Python2, it has __self__ == None.
+        return getattr(method, '__self__', None)
+
+
+    def get_imClass(method):
+        if getattr(method, '__self__', -1) == -1:
+            # this is a function. Now check if it is defined by a class.
+            # See PEP3155 which even mentions twisted as one
+            # reason for introducing __qualname__ with Python 3.3
+            qualname = method.__qualname__
+            if '.' in qualname:
+                parts = qualname.split('.')[:-1]
+                className = '.'.join(parts)
+                if className not in method.__globals__:
+                    raise AttributeError('get_imClass does not support nested classes')
+                return method.__globals__[className]
+            raise AttributeError(
+                "'{0}' has no attribute 'im_class'".format(method))
+        else:
+            return method.__self__.__class__
+
+else:
+    def get_imFunc(method):
+        return method.im_func
+
+
+    def get_imSelf(method):
+        return method.im_self
+
+
+    def get_imClass(method):
+        return method.im_class
+
+get_imFunc.__doc__ = """
+Return the function for method.
+
+@param method: The method whose function will be returned.
+@return: The function for method.
+"""
+
+get_imSelf.__doc__ = """
+Return the instance method is bound to.
+Return None for unbound methods and functions.
+
+@param method: The method whose instance will be returned.
+@return: The instance method is bound to.
+"""
+
+get_imClass.__doc__ = """
+Return the class method belongs to. In Python 3, do not support
+nested classes.
+
+@param method: The method whose class will be returned.
+@return: The class method belongs to.
+"""
+
+
+
 __all__ = [
     "reraise",
     "execfile",
@@ -549,4 +625,7 @@ __all__ = [
     "StringType",
     "InstanceType",
     "FileType",
+    "get_imFunc",
+    "get_imSelf",
+    "get_imClass"
     ]
