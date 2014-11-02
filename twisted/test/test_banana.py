@@ -455,10 +455,11 @@ class BananaTestCase(BananaTestBase):
         Test feeding the data byte per byte to the receiver. Normally
         data is not split.
         """
+        maxint = sys.maxsize if _PY3 else sys.maxint
         foo = [1, 2, [3, 4], [30.5, 40.2], 5,
                [b"six", b"seven", [b"eight", 9]], [10],
                # TODO: currently the C implementation's a bit buggy...
-               sys.maxint * 3l, sys.maxint * 2l, sys.maxint * long(-2)]
+               maxint * long(3), maxint * long(2), maxint * long(-2)]
         self.enc.sendEncoded(foo)
         self.feed(self.io.getvalue())
         assert self.result == foo, "%s!=%s" % (repr(self.result), repr(foo))
