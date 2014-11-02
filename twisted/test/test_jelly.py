@@ -5,6 +5,8 @@
 Test cases for L{jelly} object serialization.
 """
 
+from __future__ import division, absolute_import
+
 from twisted.python.compat import _PY3, get_imClass, get_imSelf
 from twisted.python.compat import unicode
 
