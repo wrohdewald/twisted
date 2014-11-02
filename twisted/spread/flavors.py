@@ -469,7 +469,8 @@ class RemoteCache(RemoteCopy, Serializable):
     def __hash__(self):
         """Hash me.
         """
-        return int(id(self.__dict__) % sys.maxint)
+        maxint = sys.maxsize if _PY3 else sys.maxint
+        return int(id(self.__dict__) % maxint)
 
     broker = None
     luid = None
