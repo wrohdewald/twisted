@@ -8,17 +8,23 @@
 Different styles of persisted objects.
 """
 
+from twisted.python.compat import _PY3
+
 # System Imports
 import types
-import copy_reg
 import copy
 import inspect
 import sys
 
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
+if _PY3:
+    import copyreg as copy_reg
+    import io as StringIO
+else:
+    import copy_reg
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
 
 # Twisted Imports
 from twisted.python import log
