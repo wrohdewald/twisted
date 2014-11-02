@@ -5,6 +5,8 @@
 Tests for error handling in PB.
 """
 
+from __future__ import division, absolute_import
+
 from StringIO import StringIO
 
 from twisted.trial import unittest
