@@ -9,6 +9,7 @@ from __future__ import division, absolute_import
 
 from io import BytesIO
 
+from twisted.python.compat import _PY3
 from twisted.trial import unittest
 from twisted.spread import pb, flavors, jelly
 from twisted.internet import reactor, defer
@@ -312,6 +313,9 @@ class PBFailureTest(PBConnTestCase):
         a L{pb.Jellyable} subclass), as long as it is an L{pb.Error}
         subclass it receives the same special treatment.
         """
+        if _PY3:
+            # TODO: implement with PY3
+            assert 0, 'does not yet work with Python 3'
         def failureSecurity(fail):
             fail.trap(SecurityError)
             self.failIf(isinstance(fail.type, str))
