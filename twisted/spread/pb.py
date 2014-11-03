@@ -448,6 +448,10 @@ class CopyableFailure(failure.Failure, Copyable):
             state['traceback'] = self.getTraceback()
         else:
             state['traceback'] = 'Traceback unavailable\n'
+        if '__traceback__' in state:
+            print(_PY3, 'CopyableFailure: State has __traceback__')
+        else:
+            print(_PY3, 'CopyableFailure: State has NO __traceback__')
         return state
 
 

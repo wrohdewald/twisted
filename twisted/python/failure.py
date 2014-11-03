@@ -226,6 +226,8 @@ class Failure:
             self.__dict__ = self.value.__dict__
 # TODO: warum?            self.parents = []
             return
+        if _PY3:
+            assert hasattr(self.value, '__traceback__'), 'value:%r, tb:%r' % (self.value, tb)
         if tb is None:
             if exc_tb:
                 tb = exc_tb
